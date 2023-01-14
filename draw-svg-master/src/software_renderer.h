@@ -43,8 +43,11 @@ class SoftwareRenderer : public SVGRenderer {
 
   // Clear pixel buffer
   inline void clear_buffer() {
+	printf("clear_buffer\n");
+	// set_pixel_buffer clear_buffer draw_svg resolve
     memset(pixel_buffer, 255, 4 * width * height);
-	memset(sample_buffer, 255, 4 * sample_width * sample_height);
+	// memset(sample_buffer, 255, 4 * sample_width * sample_height);
+	sample_buffer = (unsigned char*) calloc(4*sample_width*sample_height, sizeof(unsigned char));
   }
 
   // Set texture sampler
@@ -71,6 +74,7 @@ class SoftwareRenderer : public SVGRenderer {
   // For task 2
   unsigned char* sample_buffer;
   size_t sample_width; size_t sample_height;
+  
 
   // SVG outline bbox (in pixels)
   Vector2D svg_bbox_top_left, svg_bbox_bottom_right;
@@ -297,6 +301,8 @@ private:
 
 	// SSAA sample buffer
 	std::vector<unsigned char> sample_buffer;
+	// since both impl and ref need set_pixel_buffer, we need to add sample_buffer in both classes
+	// but we can use different data structure
 
 #ifdef USE_PTHREAD
 	std::vector<pthread_t> threads;

@@ -17,7 +17,7 @@ namespace CS248 {
 // fill a sample location with color
 void SoftwareRendererImp::fill_sample(int sx, int sy, const Color &color) {
   // Task 2: implement this function
-  // printf("fill_sample");
+  // printf("fill_sample\n");
   if (sx < 0 || sx >= sample_width) return;
   if (sy < 0 || sy >= sample_height) return;
 
@@ -58,7 +58,7 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 	// pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(pixel_color.g * 255);
 	// pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(pixel_color.b * 255);
 	// pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(pixel_color.a * 255);
-
+  // printf("fill_pixel\n");
   int sx = sample_rate*x;
   int sy = sample_rate*y;
   if (sx < 0 || sx >= sample_width) return;
@@ -72,8 +72,7 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 }
 
 void SoftwareRendererImp::draw_svg( SVG& svg ) {
-  printf("draw_svg");
-  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  printf("draw_svg\n");
   // set top level transformation
   transformation = canvas_to_screen;
 
@@ -103,7 +102,7 @@ void SoftwareRendererImp::draw_svg( SVG& svg ) {
 }
 
 void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
-  printf("set_sample_rate");
+  printf("set_sample_rate\n");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->sample_rate = sample_rate;
@@ -111,23 +110,36 @@ void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
   this->sample_width = width*sample_rate;
   this->sample_height = height*sample_rate;
   // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
-  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
+  this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
 }
 
 void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
                                              size_t width, size_t height ) {
                                               
-  printf("set_pixel_buffer");
+  printf("set_pixel_buffer\n");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->pixel_buffer = pixel_buffer;
   this->width = width;
   this->height = height;
 
+  printf("set_pixel_buffer sample part\n");
   this->sample_width = width*sample_rate;
   this->sample_height = height*sample_rate;
-  // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
-  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  printf("width height sample_rate %d %d %d\n", width, height, sample_rate);
+  printf("set_sample_buffer sample part\n");
+  printf("sample_buffer address %p\n", sample_buffer);
+  printf("this->sample_buffer address %p\n", this->sample_buffer);
+  // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
+  this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
+  printf("finish set_sample_buffer sample part\n");
+  // this->sample_width = width*sample_rate;
+  // this->sample_height = height*sample_rate;
+  // // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
+  // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
 }
 
 void SoftwareRendererImp::draw_element( SVGElement* element ) {
@@ -330,7 +342,7 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               float x1, float y1,
                                               float x2, float y2,
                                               Color color ) {
-  printf("rasterize_triangle");
+  printf("rasterize_triangle\n");
   // Task 1: 
   // Implement triangle rasterization
   
@@ -386,7 +398,7 @@ void SoftwareRendererImp::resolve( void ) {
   // Task 2: 
   // Implement supersampling
   // You may also need to modify other functions marked with "Task 2".
-  printf("resolve");
+  printf("resolve\n");
   for(int i=0; i<width; i++){
     for(int j=0; j<height; j++){
       float r=0.0; float g=0.0; float b=0.0; float a=0.0;
