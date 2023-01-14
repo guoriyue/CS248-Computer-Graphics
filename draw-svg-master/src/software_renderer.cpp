@@ -17,35 +17,63 @@ namespace CS248 {
 // fill a sample location with color
 void SoftwareRendererImp::fill_sample(int sx, int sy, const Color &color) {
   // Task 2: implement this function
+  // printf("fill_sample");
+  if (sx < 0 || sx >= sample_width) return;
+  if (sy < 0 || sy >= sample_height) return;
+
+  Color pixel_color;
+  float inv255 = 1.0 / 255.0;
+  pixel_color.r = sample_buffer[4 * (sx + sy * sample_width)] * inv255;
+  pixel_color.g = sample_buffer[4 * (sx + sy * sample_width) + 1] * inv255;
+  pixel_color.b = sample_buffer[4 * (sx + sy * sample_width) + 2] * inv255;
+  pixel_color.a = sample_buffer[4 * (sx + sy * sample_width) + 3] * inv255;
+
+  pixel_color = ref->alpha_blending_helper(pixel_color, color);
+
+  sample_buffer[4 * (sx + sy * sample_width)] = (uint8_t)(pixel_color.r * 255);
+  sample_buffer[4 * (sx + sy * sample_width) + 1] = (uint8_t)(pixel_color.g * 255);
+  sample_buffer[4 * (sx + sy * sample_width) + 2] = (uint8_t)(pixel_color.b * 255);
+  sample_buffer[4 * (sx + sy * sample_width) + 3] = (uint8_t)(pixel_color.a * 255);
 }
 
 // fill samples in the entire pixel specified by pixel coordinates
 void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 
-	// Task 2: Re-implement this function
+	// // Task 2: Re-implement this function
 
-	// check bounds
-	if (x < 0 || x >= width) return;
-	if (y < 0 || y >= height) return;
+	// // check bounds
+	// if (x < 0 || x >= width) return;
+	// if (y < 0 || y >= height) return;
 
-	Color pixel_color;
-	float inv255 = 1.0 / 255.0;
-	pixel_color.r = pixel_buffer[4 * (x + y * width)] * inv255;
-	pixel_color.g = pixel_buffer[4 * (x + y * width) + 1] * inv255;
-	pixel_color.b = pixel_buffer[4 * (x + y * width) + 2] * inv255;
-	pixel_color.a = pixel_buffer[4 * (x + y * width) + 3] * inv255;
+	// Color pixel_color;
+	// float inv255 = 1.0 / 255.0;
+	// pixel_color.r = pixel_buffer[4 * (x + y * width)] * inv255;
+	// pixel_color.g = pixel_buffer[4 * (x + y * width) + 1] * inv255;
+	// pixel_color.b = pixel_buffer[4 * (x + y * width) + 2] * inv255;
+	// pixel_color.a = pixel_buffer[4 * (x + y * width) + 3] * inv255;
 
-	pixel_color = ref->alpha_blending_helper(pixel_color, color);
+	// pixel_color = ref->alpha_blending_helper(pixel_color, color);
 
-	pixel_buffer[4 * (x + y * width)] = (uint8_t)(pixel_color.r * 255);
-	pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(pixel_color.g * 255);
-	pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(pixel_color.b * 255);
-	pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(pixel_color.a * 255);
+	// pixel_buffer[4 * (x + y * width)] = (uint8_t)(pixel_color.r * 255);
+	// pixel_buffer[4 * (x + y * width) + 1] = (uint8_t)(pixel_color.g * 255);
+	// pixel_buffer[4 * (x + y * width) + 2] = (uint8_t)(pixel_color.b * 255);
+	// pixel_buffer[4 * (x + y * width) + 3] = (uint8_t)(pixel_color.a * 255);
 
+  int sx = sample_rate*x;
+  int sy = sample_rate*y;
+  if (sx < 0 || sx >= sample_width) return;
+	if (sy < 0 || sy >= sample_height) return;
+
+  for(int i=sx; i<sx+sample_rate; i++){
+    for(int j=sy; j<sy+sample_rate; j++){
+      fill_sample(i, j, color);
+    }
+  }
 }
 
 void SoftwareRendererImp::draw_svg( SVG& svg ) {
-
+  printf("draw_svg");
+  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
   // set top level transformation
   transformation = canvas_to_screen;
 
@@ -75,22 +103,31 @@ void SoftwareRendererImp::draw_svg( SVG& svg ) {
 }
 
 void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
-
+  printf("set_sample_rate");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->sample_rate = sample_rate;
 
+  this->sample_width = width*sample_rate;
+  this->sample_height = height*sample_rate;
+  // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
+  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
 }
 
 void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
                                              size_t width, size_t height ) {
-
+                                              
+  printf("set_pixel_buffer");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->pixel_buffer = pixel_buffer;
   this->width = width;
   this->height = height;
 
+  this->sample_width = width*sample_rate;
+  this->sample_height = height*sample_rate;
+  // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
+  this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
 }
 
 void SoftwareRendererImp::draw_element( SVGElement* element ) {
@@ -293,8 +330,42 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               float x1, float y1,
                                               float x2, float y2,
                                               Color color ) {
+  printf("rasterize_triangle");
   // Task 1: 
   // Implement triangle rasterization
+  
+  int min_x = floor(min(min(x0, x1), x2));
+  int max_x = ceil(max(max(x0, x1), x2));
+  int min_y = floor(min(min(y0, y1), y2));
+  int max_y = ceil(max(max(y0, y1), y2));
+
+  if (min_x < 0) min_x=0;
+  if (min_y < 0) min_y=0;
+  if (max_x > width) max_x = ceil(width);
+  if (max_y > height) max_y = ceil(height);
+  
+  float b[3] = {x1-x0, x2-x1, x0-x2};
+  float a[3] = {y1-y0, y2-y1, y0-y2};
+  float c[3] = {y0*(x1-x0)-x0*(y1-y0), y1*(x2-x1)-x1*(y2-y1), y2*(x0-x2)-x2*(y0-y2)};
+  bool anti_clockwise = x0*y1+y0*x2+x1*y2-x2*y1-y2*x0-x1*y0>0 ? true:false;
+  // https://math.stackexchange.com/questions/1324179/how-to-tell-if-3-connected-points-are-connected-clockwise-or-counter-clockwise
+  // larger than 0, anti clockwise order
+
+  for(int i=min_x; i<=max_x; i++){
+    for(int j=min_y; j<=max_y; j++){
+      float sample_x=i+0.5;
+      float sample_y=j+0.5;
+      float l[3]={a[0]*sample_x-b[0]*sample_y+c[0], a[1]*sample_x-b[1]*sample_y+c[1], a[2]*sample_x-b[2]*sample_y+c[2]};
+      if((anti_clockwise && l[0]<=0 && l[1]<=0 && l[2]<=0) || (!anti_clockwise && l[0]>=0 && l[1]>=0 && l[2]>=0)){
+        fill_pixel(sample_x, sample_y, color);
+      }
+    }
+  }
+  // 1 pixel different for stanford
+  // 0 for traingles
+  // 1 for cube
+  // 0 for kitten
+
 
   // Advanced Task
   // Implementing Triangle Edge Rules
@@ -315,8 +386,32 @@ void SoftwareRendererImp::resolve( void ) {
   // Task 2: 
   // Implement supersampling
   // You may also need to modify other functions marked with "Task 2".
+  printf("resolve");
+  for(int i=0; i<width; i++){
+    for(int j=0; j<height; j++){
+      float r=0.0; float g=0.0; float b=0.0; float a=0.0;
+      for(int si=0; si<sample_rate; si++){
+        for(int sj=0; sj<sample_rate; sj++){
+          int sx=sample_rate*i+si;
+          int sy=sample_rate*j+sj;
+          r+=sample_buffer[4*(sx+sy*sample_width)];
+          g+=sample_buffer[4*(sx+sy*sample_width)+1];
+          b+=sample_buffer[4*(sx+sy*sample_width)+2];
+          a+=sample_buffer[4*(sx+sy*sample_width)+3];
+        }
+      }
+      r/=(sample_rate*sample_rate);
+      g/=(sample_rate*sample_rate);
+      b/=(sample_rate*sample_rate);
+      a/=(sample_rate*sample_rate);
+      pixel_buffer[4*(i+j*width)]=r;
+      pixel_buffer[4*(i+j*width)+1]=g;
+      pixel_buffer[4*(i+j*width)+2]=b;
+      pixel_buffer[4*(i+j*width)+3]=a;
+    }
+  }
+  // free(sample_buffer);
   return;
-
 }
 
 Color SoftwareRendererImp::alpha_blending(Color pixel_color, Color color)

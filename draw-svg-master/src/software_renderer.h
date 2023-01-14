@@ -44,6 +44,7 @@ class SoftwareRenderer : public SVGRenderer {
   // Clear pixel buffer
   inline void clear_buffer() {
     memset(pixel_buffer, 255, 4 * width * height);
+	memset(sample_buffer, 255, 4 * sample_width * sample_height);
   }
 
   // Set texture sampler
@@ -67,8 +68,12 @@ class SoftwareRenderer : public SVGRenderer {
   // Pixel buffer dimension (in pixels)
   size_t width; size_t height;
 
+  // For task 2
+  unsigned char* sample_buffer;
+  size_t sample_width; size_t sample_height;
+
   // SVG outline bbox (in pixels)
-	Vector2D svg_bbox_top_left, svg_bbox_bottom_right;
+  Vector2D svg_bbox_top_left, svg_bbox_bottom_right;
 
   // Texture sampler being used
   Sampler2D* sampler;
