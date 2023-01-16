@@ -92,7 +92,7 @@ void DrawSVG::resize( size_t width, size_t height ) {
 
   this->width  = width;
   this->height = height;
-  // free(this->sample_buffer);
+  // 
   // resize pixel buffer
   printf("before resize pixel buffer\n");
   framebuffer.resize( 4 * width * height);

@@ -107,12 +107,17 @@ void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
   // You may want to modify this for supersampling support
   this->sample_rate = sample_rate;
 
-  this->sample_width = width*sample_rate;
-  this->sample_height = height*sample_rate;
-  // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
-  // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
-  // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
-  this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
+  // comment out these initialization lines and everything is good
+  // before that, we can't draw boarder lines
+  // and some buffers have refresh problems (e.g. diff only shows difference between this image and the previous image, instead of this image and the reference image)
+  // I guess this function causes some refresh errors
+  // this->sample_width = width*sample_rate;
+  // this->sample_height = height*sample_rate;
+  // // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
+  // // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
+  // // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
+
+  // this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
 }
 
 void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
@@ -134,6 +139,7 @@ void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
   printf("this->sample_buffer address %p\n", this->sample_buffer);
   // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
   // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
+
   this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
   printf("finish set_sample_buffer sample part\n");
   // this->sample_width = width*sample_rate;
@@ -421,7 +427,7 @@ void SoftwareRendererImp::resolve( void ) {
       pixel_buffer[4*(i+j*width)+3]=a;
     }
   }
-  // free(sample_buffer);
+  // free(this->sample_buffer);
   return;
 }
 

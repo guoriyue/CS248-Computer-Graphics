@@ -49,12 +49,14 @@ class SoftwareRenderer : public SVGRenderer {
 	printf("sample rate %d\n", sample_rate);
 	printf("pixel_buffer address %p\n", pixel_buffer);
  	printf("sample_buffer address %p\n", sample_buffer);
+	// cover up errors, may have some problems
+	// no longer being covered up after commenting out SoftwareRendererImp::set_sample_rate
 	printf("width height sample_width sample_height %d %d %d %d\n", width, height, sample_width, sample_height);
     // sample_width sample_height not properly initialized before calling clear_buffer
-	sample_width = width*sample_rate;
-	sample_height = height*sample_rate;
+	// sample_width = width*sample_rate;
+	// sample_height = height*sample_rate;
 	memset(pixel_buffer, 255, 4 * width * height);
-	memset(sample_buffer, 255, 4 * sample_width * sample_height);
+	memset(sample_buffer, 255, 4 * width * height * sample_rate * sample_rate);
 	// sample_buffer = (unsigned char*) calloc(4*sample_width*sample_height, sizeof(unsigned char));
   }
 
@@ -67,7 +69,7 @@ class SoftwareRenderer : public SVGRenderer {
   inline void set_canvas_to_screen( Matrix3x3 canvas_to_screen ) {
     this->canvas_to_screen = canvas_to_screen;
   }
-
+  
  protected:
 
   // Sample rate (square root of samples per pixel)
@@ -306,8 +308,8 @@ private:
 	void fill_sample(float sx, float sy, const Color& c, void* thread_data = NULL);
 	void fill_pixel(int x, int y, const Color& c, void* thread_data = NULL);
 
-	// // SSAA sample buffer
-	// std::vector<unsigned char> sample_buffer;
+	// SSAA sample buffer
+	std::vector<unsigned char> sample_buffer;
 	/* Should use the same data structure for sample_buffer, so change the sample_buffer in ref. */
 
 #ifdef USE_PTHREAD
