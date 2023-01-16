@@ -80,6 +80,5 @@ int main(int argc, char *argv[]) {
     // poll events
     glfwPollEvents();
   }
-
   return 0;
 }

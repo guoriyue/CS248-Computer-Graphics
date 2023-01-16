@@ -118,6 +118,20 @@ void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
   // // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
 
   // this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
+
+  // so weird everything suddenly fine after adding these
+  this->sample_width = width*sample_rate;
+  this->sample_height = height*sample_rate;
+
+  if (!this->sample_buffer_initialized) {
+    this->sample_buffer_initialized = true;
+  } else {
+    // if not first time initialization, free last calloc and add a new calloc
+    free(this->sample_buffer);
+  }
+  // how do I know where the whole program ends and free this buffer?
+  this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
+  printf("finish set_sample_buffer sample part\n");
 }
 
 void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
@@ -140,6 +154,14 @@ void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
   // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
   // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
 
+  // this resize occurs only on first initialization or when the size changes, so add a flag to represent initialized or not
+  if (!this->sample_buffer_initialized) {
+    this->sample_buffer_initialized = true;
+  } else {
+    // if not first time initialization, free last calloc and add a new calloc
+    free(this->sample_buffer);
+  }
+  // how do I know where the whole program ends and free this buffer?
   this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
   printf("finish set_sample_buffer sample part\n");
   // this->sample_width = width*sample_rate;
@@ -368,16 +390,35 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   // https://math.stackexchange.com/questions/1324179/how-to-tell-if-3-connected-points-are-connected-clockwise-or-counter-clockwise
   // larger than 0, anti clockwise order
 
+  // // for sample rate == 1
+  // for(int i=min_x; i<=max_x; i++){
+  //   for(int j=min_y; j<=max_y; j++){
+  //     float sample_x=i+0.5;
+  //     float sample_y=j+0.5;
+  //     float l[3]={a[0]*sample_x-b[0]*sample_y+c[0], a[1]*sample_x-b[1]*sample_y+c[1], a[2]*sample_x-b[2]*sample_y+c[2]};
+  //     if((anti_clockwise && l[0]<=0 && l[1]<=0 && l[2]<=0) || (!anti_clockwise && l[0]>=0 && l[1]>=0 && l[2]>=0)){
+  //       fill_pixel(sample_x, sample_y, color);
+  //     }
+  //   }
+  // }
+
+  // at the beginning we want to directly call fill_pixel, but since we have to do traingle inside checks, so we have to call fill_sample
   for(int i=min_x; i<=max_x; i++){
     for(int j=min_y; j<=max_y; j++){
-      float sample_x=i+0.5;
-      float sample_y=j+0.5;
-      float l[3]={a[0]*sample_x-b[0]*sample_y+c[0], a[1]*sample_x-b[1]*sample_y+c[1], a[2]*sample_x-b[2]*sample_y+c[2]};
-      if((anti_clockwise && l[0]<=0 && l[1]<=0 && l[2]<=0) || (!anti_clockwise && l[0]>=0 && l[1]>=0 && l[2]>=0)){
-        fill_pixel(sample_x, sample_y, color);
+      
+      for(int di=0; di<sample_rate; di++){
+        for(int dj=0; dj<sample_rate; dj++){
+          float sample_x=i+(2*di+1.0)/(2.0*sample_rate);
+          float sample_y=j+(2*dj+1.0)/(2.0*sample_rate);
+          float l[3]={a[0]*sample_x-b[0]*sample_y+c[0], a[1]*sample_x-b[1]*sample_y+c[1], a[2]*sample_x-b[2]*sample_y+c[2]};
+          if((anti_clockwise && l[0]<=0 && l[1]<=0 && l[2]<=0) || (!anti_clockwise && l[0]>=0 && l[1]>=0 && l[2]>=0)){
+            fill_sample(i*sample_rate + di, j*sample_rate + dj, color);
+          }
+        }
       }
     }
   }
+
   // 1 pixel different for stanford
   // 0 for traingles
   // 1 for cube

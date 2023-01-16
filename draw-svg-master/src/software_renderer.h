@@ -93,6 +93,7 @@ class SoftwareRenderer : public SVGRenderer {
   // For task 2
   unsigned char* sample_buffer;
   size_t sample_width; size_t sample_height;
+  bool sample_buffer_initialized = false;
 
 }; // class SoftwareRenderer
 
