@@ -41,13 +41,21 @@ class SoftwareRenderer : public SVGRenderer {
   virtual void set_pixel_buffer( unsigned char* pixel_buffer,
                                   size_t width, size_t height ) = 0;
 
+
   // Clear pixel buffer
   inline void clear_buffer() {
 	printf("clear_buffer\n");
 	// set_pixel_buffer clear_buffer draw_svg resolve
-    memset(pixel_buffer, 255, 4 * width * height);
-	// memset(sample_buffer, 255, 4 * sample_width * sample_height);
-	sample_buffer = (unsigned char*) calloc(4*sample_width*sample_height, sizeof(unsigned char));
+	printf("sample rate %d\n", sample_rate);
+	printf("pixel_buffer address %p\n", pixel_buffer);
+ 	printf("sample_buffer address %p\n", sample_buffer);
+	printf("width height sample_width sample_height %d %d %d %d\n", width, height, sample_width, sample_height);
+    // sample_width sample_height not properly initialized before calling clear_buffer
+	sample_width = width*sample_rate;
+	sample_height = height*sample_rate;
+	memset(pixel_buffer, 255, 4 * width * height);
+	memset(sample_buffer, 255, 4 * sample_width * sample_height);
+	// sample_buffer = (unsigned char*) calloc(4*sample_width*sample_height, sizeof(unsigned char));
   }
 
   // Set texture sampler
@@ -69,12 +77,7 @@ class SoftwareRenderer : public SVGRenderer {
   unsigned char* pixel_buffer; 
 
   // Pixel buffer dimension (in pixels)
-  size_t width; size_t height;
-
-  // For task 2
-  unsigned char* sample_buffer;
-  size_t sample_width; size_t sample_height;
-  
+  size_t width; size_t height;  
 
   // SVG outline bbox (in pixels)
   Vector2D svg_bbox_top_left, svg_bbox_bottom_right;
@@ -84,6 +87,10 @@ class SoftwareRenderer : public SVGRenderer {
 
   // SVG coordinates to screen space coordinates
   Matrix3x3 canvas_to_screen;
+
+  // For task 2
+  unsigned char* sample_buffer;
+  size_t sample_width; size_t sample_height;
 
 }; // class SoftwareRenderer
 
@@ -299,10 +306,9 @@ private:
 	void fill_sample(float sx, float sy, const Color& c, void* thread_data = NULL);
 	void fill_pixel(int x, int y, const Color& c, void* thread_data = NULL);
 
-	// SSAA sample buffer
-	std::vector<unsigned char> sample_buffer;
-	// since both impl and ref need set_pixel_buffer, we need to add sample_buffer in both classes
-	// but we can use different data structure
+	// // SSAA sample buffer
+	// std::vector<unsigned char> sample_buffer;
+	/* Should use the same data structure for sample_buffer, so change the sample_buffer in ref. */
 
 #ifdef USE_PTHREAD
 	std::vector<pthread_t> threads;

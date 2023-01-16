@@ -72,7 +72,7 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 }
 
 void SoftwareRendererImp::draw_svg( SVG& svg ) {
-  printf("draw_svg\n");
+  printf("start draw_svg\n");
   // set top level transformation
   transformation = canvas_to_screen;
 
@@ -342,7 +342,6 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               float x1, float y1,
                                               float x2, float y2,
                                               Color color ) {
-  printf("rasterize_triangle\n");
   // Task 1: 
   // Implement triangle rasterization
   

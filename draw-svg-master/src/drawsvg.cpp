@@ -92,19 +92,23 @@ void DrawSVG::resize( size_t width, size_t height ) {
 
   this->width  = width;
   this->height = height;
-
+  // free(this->sample_buffer);
   // resize pixel buffer
+  printf("before resize pixel buffer\n");
   framebuffer.resize( 4 * width * height);
   software_renderer_imp->set_pixel_buffer(&framebuffer[0], width, height);
+  printf("after 1 resize pixel buffer\n");
   software_renderer_ref->set_pixel_buffer(&framebuffer[0], width, height);
-
+  printf("after 2 resize pixel buffer\n");
   // re-adjust norm_to_screen
   float scale = min(width, height);
   norm_to_screen(0,0) = scale; norm_to_screen(0,2) = (width  - scale) / 2;
   norm_to_screen(1,1) = scale; norm_to_screen(1,2) = (height - scale) / 2;
 
   // redraw current tab with updated transformation
+  printf("before redraw current tab with updated transformation\n");
   redraw();
+  printf("after redraw current tab with updated transformation\n");
 }
 
 void DrawSVG::keyboard_event(int key, int event, unsigned char mods) {
@@ -421,18 +425,22 @@ void DrawSVG::dec_sample_rate() {
 }
 
 void DrawSVG::redraw() {
-
+  printf("redraw before clear\n");
   clear();
-
+  printf("redraw after clear\n");
   // set canvas_to_screen transformation
   Matrix3x3 m_imp = norm_to_screen * viewport_imp[current_tab]->get_canvas_to_norm();
   Matrix3x3 m_ref = norm_to_screen * viewport_ref[current_tab]->get_canvas_to_norm();
   software_renderer_imp->set_canvas_to_screen( m_imp ); 
   software_renderer_ref->set_canvas_to_screen( m_ref ); 
+  printf("redraw after get and set canvas\n");
 
   if (show_diff) { draw_diff(); return; }
+  std::cout<<"tabs[current_tab] "<<tabs[current_tab]<<std::endl;
   software_renderer->draw_svg(*tabs[current_tab]);
+  printf("redraw after draw_svg\n");
   display_pixels( &framebuffer[0] );
+  printf("redraw done\n");
 }
 
 void DrawSVG::regenerate_mipmap(size_t tab_index) {
