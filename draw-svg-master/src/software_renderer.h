@@ -29,7 +29,9 @@ class SoftwareRenderer : public SVGRenderer {
   SoftwareRenderer( ) : sample_rate (1) { }
 
   // Free used resources
-  virtual ~SoftwareRenderer( ) { }
+  virtual ~SoftwareRenderer( ) {
+	free(sample_buffer);
+  }
 
   // Draw an svg input to pixel buffer
   virtual void draw_svg( SVG& svg ) = 0;
@@ -116,6 +118,8 @@ public:
 	void fill_sample(int sx, int sy, const Color& color);
 	void fill_pixel(int x, int y, const Color& color);
 
+	void bresenham_line(float x0, float y0, float x1, float y1, Color color);
+	void xiaolinwu_line(float x0, float y0, float x1, float y1, Color color);
 private:
 
 	// Primitive Drawing //
