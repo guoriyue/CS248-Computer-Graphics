@@ -346,8 +346,6 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
   // check bounds
   if (sx < 0 || sx >= width) return;
   if (sy < 0 || sy >= height) return;
-  // std::cout<<"sx: "<<sx<<endl;
-  // std::cout<<"sy: "<<sy<<endl;
 
   // fill sample - NOT doing alpha blending!
   // TODO: Call fill_pixel here to run alpha blending
@@ -360,7 +358,71 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
 
 void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1, Color color)
 {
-
+  if (dya <= dxa) { // absolute slope 0-1
+		if (dx >= 0) {
+      // slope 0-1
+			x = x0;
+			y = y0;
+			mx = x1;
+		}
+		else {
+      // slope -1-0
+			x = x1;
+			y = y1;
+			mx = x0;
+		}
+		fill_pixel (x, y, color);
+		while (x < mx) {
+			x = x + 1;
+			if (ex < 0)
+			{
+				ex = ex + dya;
+			}
+			else
+			{
+				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+					y = y + 1;
+				}
+				else {
+					y = y - 1;
+				}
+				ex = ex + (dya - dxa);
+			}
+			fill_pixel (x, y, color);
+		}
+	}
+	else { 
+    // slope > 1
+		if (dy >= 0) { 
+      // positive slope
+			x = x0;
+			y = y0;
+			my = y1;
+		}
+		else {
+      // negative slope
+			x = x1;
+			y = y1;
+			my = y0;
+		}
+		fill_pixel (x, y, color);
+		while (y < my) {
+			y = y + 1;
+			if (ey <= 0) {
+				ey = ey + dxa;
+			}
+			else {
+				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+					x = x + 1;
+				}
+				else {
+					x = x - 1;
+				}
+				ey = ey + (dxa - dya);
+			}
+			fill_pixel (x, y, color);
+		}
+	}
 }
 
 void SoftwareRendererImp::bresenham_line(float x0, float y0, float x1, float y1, Color color)
@@ -448,138 +510,11 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
                                           Color color) {
 
 
-  bresenham_line(x0, y0, x1, y1, color);
+  
   // Task 0: 
   // Implement Bresenham's algorithm (delete the line below and implement your own)
-  // ref->rasterize_line_helper(x0, y0, x1, y1, width, height, color, this);
-
-  // double dx = abs(x1 - x0);
-  // double dy = abs(y1 - y0);
-	// double ex = dy - dx / 2.0; // epsilon for x
-	// double ey = dx - dy / 2.0; // epsilon for y
-  // // absolute slope smaller than 0
-	// if (dy <= dx) {
-	// 	if (dx >= 0) {
-  //     // slope 0 ~ 1
-	// 		x = x0;
-	// 		y = y0;
-	// 		xe = x1;
-	// 	}
-	// 	else {
-  //     // slope -1 ~ 0
-	// 		x = x1;
-	// 		y = y1;
-	// 		xe = x0;
-	// 	}
-	// 	rasterize_point (x, y, color);
-	// 	for (i = 0; x < xe; i++)
-	// 	{
-	// 		x = x + 1;
-	// 		if (px < 0)
-	// 		{
-	// 			px = px + 2 * dy1; //karar degiskeni 0'dan kucukse kuzey doguya git
-	// 		}
-	// 		else
-	// 		{
-	// 			if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
-	// 			{
-	// 				y = y + 1; // kuzeye git
-	// 			}
-	// 			else
-	// 			{
-	// 				y = y - 1; // guneye git
-	// 			}
-	// 			px = px + 2 * (dy1 - dx1); //karar degiskeninin yeni degerini hesaplamak icin
-	// 		}
-	// 		yansit(x, y);
-	// 	}
-	// }
-	// else //egim 1'den buyukse
-	// {
-	// 	if (dy >= 0)  // yon kuzeye dogruysa
-	// 	{
-	// 		x = x1;
-	// 		y = y1;
-	// 		ye = y2;
-	// 	}
-	// 	else //yon kuzeye dogru degilse
-	// 	{
-	// 		x = x2;
-	// 		y = y2;
-	// 		ye = y1;
-	// 	}
-	// 	yansit(x, y);
-	// 	for (i = 0; y < ye; i++) //
-	// 	{
-	// 		y = y + 1;
-	// 		if (py <= 0)
-	// 		{
-	// 			py = py + 2 * dx1; //kuzeydoguya git
-	// 		}
-	// 		else
-	// 		{
-	// 			if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0))
-	// 			{
-	// 				x = x + 1; //doguya git
-	// 			}
-	// 			else
-	// 			{
-	// 				x = x - 1; //batiya git
-	// 			}
-	// 			py = py + 2 * (dx1 - dy1); //kuzeybatiya git
-	// 		}
-	// 		yansit(x, y);
-	// 	}
-	// }
-
-
-
-  // int dx = abs(x1 - x0);
-  // int dy = abs(y1 - y0);
-  // int sx = (x1 - x0 > 0) ? 1 : 0;
-  // int sy = (y1 - y0 > 0) ? 1 : 0;
-  // int swap = 0;
-  // // int y = y0;
-  // // int eps = 0;
-
-  // // for ( int x = x0; x <= x1; x++ )  {
-  // //   rasterize_point( x, y, color );
-  // //   eps += dy;
-  // //   if ( (eps << 1) >= dx )  {
-  // //     y++;
-  // //     eps -= dx;
-  // //   }
-  // // }
-
-  // // positive slope
-  // if (dy > dx) {
-  //   swap = dx;
-  //   dx = dy;
-  //   dy = swap;
-  //   swap = 1;
-  // }
-
-  // int epsilon = 2 * dy - dx;
-  // int x = sx;
-  // int y = sy;
-  // for (int i = 1; i <= dx; i++) {
-  //   rasterize_point( x, y, color );
-
-  //   while (epsilon >= 0) {
-  //       if (swap) {
-  //         x = x + sx;
-  //       } 
-  //       else {
-  //         y = y + sy;
-  //         epsilon = epsilon - 2 * dx;
-  //       }
-  //   }
-  //   if (swap)
-  //       y = y + sy;
-  //   else
-  //       x = x + sx;
-  //   epsilon = epsilon + 2 * dy;
-  // }
+  ref->rasterize_line_helper(x0, y0, x1, y1, width, height, color, this);
+  // bresenham_line(x0, y0, x1, y1, color);
 
   // Advanced Task
   // Drawing Smooth Lines with Line Width
