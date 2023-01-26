@@ -85,8 +85,24 @@ Color Sampler2DImp::sample_nearest(Texture& tex,
 
   // Task 4: Implement nearest neighbour interpolation
   
-  // return magenta for invalid level
-  return Color(1,0,1,1);
+  if (level < 0 || level > tex.mipmap.size()){
+    // return magenta for invalid level
+    return Color(1,0,1,1);
+  }
+
+  int width = tex.mipmap[level].width;
+  int height = tex.mipmap[level].height;
+
+  int x = (int) round(u * width - 0.5);
+  int y = (int) round(v * height - 0.5);
+
+  Color texuture_color;
+  texuture_color.r = tex.mipmap[level].texels[4 * (x + y * width)] / 255.0;
+  texuture_color.g = tex.mipmap[level].texels[4 * (x + y * width) + 1] / 255.0;
+  texuture_color.b = tex.mipmap[level].texels[4 * (x + y * width) + 2] / 255.0;
+  texuture_color.a = tex.mipmap[level].texels[4 * (x + y * width) + 3] / 255.0;
+
+  return texuture_color;
 
 }
 
@@ -96,8 +112,64 @@ Color Sampler2DImp::sample_bilinear(Texture& tex,
   
   // Task 4: Implement bilinear filtering
 
-  // return magenta for invalid level
-  return Color(1,0,1,1);
+  if (level < 0 || level > tex.mipmap.size()){
+    // return magenta for invalid level
+    return Color(1,0,1,1);
+  }
+  int width = tex.mipmap[level].width;
+  int height = tex.mipmap[level].height;
+
+  float u_texture = u * width - 0.5;
+  float v_texture = v * height - 0.5;
+
+  int u0 = (int)floor(u_texture);
+  int u1 = (int)ceil(u_texture);
+  int v0 = (int)floor(v_texture);
+  int v1 = (int)ceil(v_texture);
+
+  Color color_00;
+  color_00.r = tex.mipmap[level].texels[4 * (u0 + v0 * width)] / 255.0;
+  color_00.g = tex.mipmap[level].texels[4 * (u0 + v0 * width) + 1] / 255.0;
+  color_00.b = tex.mipmap[level].texels[4 * (u0 + v0 * width) + 2] / 255.0;
+  color_00.a = tex.mipmap[level].texels[4 * (u0 + v0 * width) + 3] / 255.0;
+
+  Color color_10;
+  color_10.r = tex.mipmap[level].texels[4 * (u1 + v0 * width)] / 255.0;
+  color_10.g = tex.mipmap[level].texels[4 * (u1 + v0 * width) + 1] / 255.0;
+  color_10.b = tex.mipmap[level].texels[4 * (u1 + v0 * width) + 2] / 255.0;
+  color_10.a = tex.mipmap[level].texels[4 * (u1 + v0 * width) + 3] / 255.0;
+
+  Color color_01;
+  color_01.r = tex.mipmap[level].texels[4 * (u0 + v1 * width)] / 255.0;
+  color_01.g = tex.mipmap[level].texels[4 * (u0 + v1 * width) + 1] / 255.0;
+  color_01.b = tex.mipmap[level].texels[4 * (u0 + v1 * width) + 2] / 255.0;
+  color_01.a = tex.mipmap[level].texels[4 * (u0 + v1 * width) + 3] / 255.0;
+
+  Color color_11;
+  color_11.r = tex.mipmap[level].texels[4 * (u1 + v1 * width)] / 255.0;
+  color_11.g = tex.mipmap[level].texels[4 * (u1 + v1 * width) + 1] / 255.0;
+  color_11.b = tex.mipmap[level].texels[4 * (u1 + v1 * width) + 2] / 255.0;
+  color_11.a = tex.mipmap[level].texels[4 * (u1 + v1 * width) + 3] / 255.0;
+
+  Color color_u0;
+  color_u0.r = color_00.r + ((u_texture - u0)/ (u1 - u0)) * (color_10.r - color_00.r);
+  color_u0.g = color_00.g + ((u_texture - u0)/ (u1 - u0)) * (color_10.g - color_00.g);
+  color_u0.b = color_00.b + ((u_texture - u0)/ (u1 - u0)) * (color_10.b - color_00.b);
+  color_u0.a = color_00.a + ((u_texture - u0)/ (u1 - u0)) * (color_10.a - color_00.a);
+
+  Color color_u1;
+  color_u1.r = color_01.r + ((u_texture - u0)/ (u1 - u0)) * (color_11.r - color_01.r);
+  color_u1.g = color_01.g + ((u_texture - u0)/ (u1 - u0)) * (color_11.g - color_01.g);
+  color_u1.b = color_01.b + ((u_texture - u0)/ (u1 - u0)) * (color_11.b - color_01.b);
+  color_u1.a = color_01.a + ((u_texture - u0)/ (u1 - u0)) * (color_11.a - color_01.a);
+
+  Color color_texure;
+  color_texure.r = color_u0.r + ((v_texture - v0)/ (v1 - v0)) * (color_u1.r - color_u0.r);
+  color_texure.g = color_u0.g + ((v_texture - v0)/ (v1 - v0)) * (color_u1.g - color_u0.g);
+  color_texure.b = color_u0.b + ((v_texture - v0)/ (v1 - v0)) * (color_u1.b - color_u0.b);
+  color_texure.a = color_u0.a + ((v_texture - v0)/ (v1 - v0)) * (color_u1.a - color_u0.a);
+
+  return color_texure;
 
 }
 

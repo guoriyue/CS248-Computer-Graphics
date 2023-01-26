@@ -7,9 +7,9 @@
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
-#include <immintrin.h>
+// #include <immintrin.h>
 #include <cstdlib>
-#include <xmmintrin.h>
+// #include <xmmintrin.h>
 #include "triangulation.h"
 
 using namespace std;
@@ -344,11 +344,11 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
 
   // fill sample - NOT doing alpha blending!
   // TODO: Call fill_pixel here to run alpha blending
-  pixel_buffer[4 * (sx + sy * width)] = (uint8_t)(color.r * 255);
-  pixel_buffer[4 * (sx + sy * width) + 1] = (uint8_t)(color.g * 255);
-  pixel_buffer[4 * (sx + sy * width) + 2] = (uint8_t)(color.b * 255);
-  pixel_buffer[4 * (sx + sy * width) + 3] = (uint8_t)(color.a * 255);
-
+  // pixel_buffer[4 * (sx + sy * width)] = (uint8_t)(color.r * 255);
+  // pixel_buffer[4 * (sx + sy * width) + 1] = (uint8_t)(color.g * 255);
+  // pixel_buffer[4 * (sx + sy * width) + 2] = (uint8_t)(color.b * 255);
+  // pixel_buffer[4 * (sx + sy * width) + 3] = (uint8_t)(color.a * 255);
+  fill_pixel(sx,sy, color);
 }
 
 void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1, Color color)
@@ -672,6 +672,27 @@ void SoftwareRendererImp::rasterize_image( float x0, float y0,
   // Task 4: 
   // Implement image rasterization
 
+  for (int i = (int)floor(x0) + 1; i < (int)ceil(x1) - 1; i++ ){
+    for (int j = (int)floor(y0) + 1; j < (int)ceil(y1) - 1; j++){
+
+      for (int k = 0; k < sample_rate; k ++){
+        for (int l =0; l < sample_rate; l ++){
+          float sample_index_x = i + (2*k+1)/(2.0*sample_rate);
+          float sample_index_y = j + (2*l+1)/(2.0*sample_rate);
+
+          float u = (sample_index_x - x0) / (x1 - x0);
+          float v = (sample_index_y - y0) / (y1 - y0);
+
+          //Color sample_color = sampler -> sample_nearest(tex, u, v, 0);
+          Color sample_color = sampler -> sample_bilinear(tex, u, v, 0);
+          int buffer_index_x = (int)(i * sample_rate + k);
+          int buffer_index_y = (int)(j * sample_rate + l);
+          fill_sample(buffer_index_x, buffer_index_y, sample_color);
+
+        } 
+      }
+    }
+  }
 }
 
 // resolve samples to pixel buffer
@@ -711,6 +732,21 @@ Color SoftwareRendererImp::alpha_blending(Color pixel_color, Color color)
 {
   // Task 5
   // Implement alpha compositing
+  float Ea = color.a;
+  float Er = color.r * Ea;
+  float Eg = color.g * Ea;
+  float Eb = color.b * Ea;
+
+  float Ca = pixel_color.a;
+  float Cr = pixel_color.r * Ca;
+  float Cg = pixel_color.g * Ca;
+  float Cb = pixel_color.b * Ca;
+
+  pixel_color.a = 1 - (1 - Ea) * (1 - Ca);
+  pixel_color.r = (1 - Ea) * Cr + Er;
+  pixel_color.g = (1 - Ea) * Cg + Eg;
+  pixel_color.b = (1 - Ea) * Cb + Eb;
+
   return pixel_color;
 }
 
