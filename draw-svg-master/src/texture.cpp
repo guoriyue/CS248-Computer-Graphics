@@ -122,10 +122,15 @@ Color Sampler2DImp::sample_bilinear(Texture& tex,
   float u_texture = u * width - 0.5;
   float v_texture = v * height - 0.5;
 
-  int u0 = (int)floor(u_texture);
-  int u1 = (int)ceil(u_texture);
-  int v0 = (int)floor(v_texture);
-  int v1 = (int)ceil(v_texture);
+  if (u_texture < 0) u_texture = 0;
+  if (v_texture < 0) v_texture = 0;
+  if (u_texture > width-1) u_texture = width-1;
+  if (v_texture > height-1) v_texture = height-1;
+
+  int u0 = (int)u_texture;
+  int u1 = u0 + 1;
+  int v0 = (int)v_texture;
+  int v1 = v0 + 1;
 
   Color color_00;
   color_00.r = tex.mipmap[level].texels[4 * (u0 + v0 * width)] / 255.0;

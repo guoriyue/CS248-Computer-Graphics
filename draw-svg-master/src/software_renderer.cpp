@@ -672,8 +672,8 @@ void SoftwareRendererImp::rasterize_image( float x0, float y0,
   // Task 4: 
   // Implement image rasterization
 
-  for (int i = (int)floor(x0) + 1; i < (int)ceil(x1) - 1; i++ ){
-    for (int j = (int)floor(y0) + 1; j < (int)ceil(y1) - 1; j++){
+  for (int i = (int)floor(x0)+1; i < (int)ceil(x1)-1; i++ ){
+    for (int j = (int)floor(y0)+1; j < (int)ceil(y1)-1; j++){
 
       for (int k = 0; k < sample_rate; k ++){
         for (int l =0; l < sample_rate; l ++){
