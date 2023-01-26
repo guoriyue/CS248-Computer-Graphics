@@ -34,6 +34,7 @@ if(APPLE)
   endif()
 
   # Clang configuration
+  # this is used on my computer
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 
     set(CLANG_CXX_FLAGS "-std=c++11 -m64")
@@ -54,7 +55,7 @@ if(APPLE)
   # GCC configuration
   if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 
-    set(GCC_CXX_FLAGS "-std=gnu++11 -m64")
+    set(GCC_CXX_FLAGS "-std=gnu++11 -m64 -fopenmp -mavx -mfma")
 
     if(BUILD_DEBUG)
       set(CMAKE_BUILD_TYPE Debug)

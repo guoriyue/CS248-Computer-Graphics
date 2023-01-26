@@ -891,6 +891,21 @@ src/CMakeFiles/drawsvg.dir/software_renderer.cpp.o: /Users/guomingfei/Desktop/cs
   /Library/Developer/CommandLineTools/usr/include/c++/v1/__split_buffer \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/queue \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/deque \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/pthread_impl.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/sched.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread_impl.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_cond_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_key_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_mutex_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_mutexattr_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_once_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_rwlock_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_rwlockattr_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/qos.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/qos.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_mach_port_t.h \
   /Users/guomingfei/Desktop/cs248/draw-svg-master/CS248/include/CS248/CS248.h \
   /Users/guomingfei/Desktop/cs248/draw-svg-master/CS248/include/CS248/misc.h \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/cmath \
@@ -930,21 +945,6 @@ src/CMakeFiles/drawsvg.dir/software_renderer.cpp.o: /Users/guomingfei/Desktop/cs
   /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/errno.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/errno.h \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/__threading_support \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/pthread_impl.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/sched.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread_impl.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_cond_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_condattr_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_key_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_mutex_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_mutexattr_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_once_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_rwlock_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_rwlockattr_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_t.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/qos.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/qos.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_mach_port_t.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sched.h \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/locale.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/locale.h \
@@ -999,6 +999,78 @@ src/CMakeFiles/drawsvg.dir/software_renderer.cpp.o: /Users/guomingfei/Desktop/cs
   /Users/guomingfei/Desktop/cs248/draw-svg-master/src/viewport.h \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/usr/include/c++/v1/istream \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/unistd.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/unistd.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_posix_vdisable.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_seek_set.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/select.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_select.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_uuid_t.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/gethostuuid.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/immintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/mmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xmmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/mm_malloc.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/emmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/pmmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/tmmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/smmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/popcntintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/wmmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/__wmmintrin_aes.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/__wmmintrin_pclmul.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/clflushoptintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/clwbintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avxintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx2intrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/f16cintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/vpclmulqdqintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/bmiintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/bmi2intrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/lzcntintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/fmaintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512fintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512bwintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512bitalgintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512cdintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vpopcntdqintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vpopcntdqvlintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vnniintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlvnniintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512dqintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlbitalgintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlbwintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlcdintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vldqintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512erintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512ifmaintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512ifmavlintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmiintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmivlintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmi2intrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlvbmi2intrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512pfintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/pkuintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/vaesintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/gfniintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/rtmintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xtestintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/shaintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/fxsrintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsaveintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsaveoptintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsavecintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsavesintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/cetintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/adxintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/rdseedintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/wbnoinvdintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/cldemoteintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/waitpkgintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/movdirintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/ptwriteintrin.h \
+  /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/invpcidintrin.h \
   /Users/guomingfei/Desktop/cs248/draw-svg-master/src/triangulation.h
 
 src/CMakeFiles/drawsvg.dir/svg.cpp.o: /Users/guomingfei/Desktop/cs248/draw-svg-master/src/svg.cpp \
@@ -1954,19 +2026,111 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
   /Library/Developer/CommandLineTools/usr/include/c++/v1/cstdarg
 
 
-/Users/guomingfei/Desktop/cs248/draw-svg-master/src/texture.cpp:
-
 /Users/guomingfei/Desktop/cs248/draw-svg-master/CS248/include/CS248/base64.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/movdirintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/waitpkgintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/rdseedintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/cetintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsavesintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/fxsrintrin.h:
+
+/Users/guomingfei/Desktop/cs248/draw-svg-master/src/texture.cpp:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/rtmintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512pfintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmi2intrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/cldemoteintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512erintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vldqintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlcdintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlbwintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512dqintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlvnniintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmivlintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vnniintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512cdintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsaveintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/gfniintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512bitalgintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512bwintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512fintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/fmaintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/bmi2intrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/bmiintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/f16cintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vpopcntdqvlintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avxintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/lzcntintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/__wmmintrin_pclmul.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/__wmmintrin_aes.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/popcntintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlbitalgintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/smmintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/tmmintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/pmmintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xmmintrin.h:
+
 /Users/guomingfei/Desktop/cs248/draw-svg-master/src/triangulation.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/wmmintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/immintrin.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/select.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_seek_set.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_posix_vdisable.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/fstream:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/dirent.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_select.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_s_ifmt.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/stat.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/clflushoptintrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/OpenGL.framework/Headers/glu.h:
 
@@ -1994,9 +2158,13 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/cstdarg:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/mm_malloc.h:
+
 /Users/guomingfei/Desktop/cs248/draw-svg-master/CS248/include/CS248/vector3D.h:
 
 /Users/guomingfei/Desktop/cs248/draw-svg-master/CS248/include/CS248/matrix3x3.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512ifmavlintrin.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/bitset:
 
@@ -2020,9 +2188,13 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_nlink_t.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/unistd.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_ino64_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_blksize_t.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlvbmi2intrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_blkcnt_t.h:
 
@@ -2046,7 +2218,13 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/xlocale/_stdio.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/ptwriteintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/xlocale/__wctype.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsaveoptintrin.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/mmintrin.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/cwctype:
 
@@ -2079,6 +2257,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/stddef.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/__threading_support:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512ifmaintrin.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/cerrno:
 
@@ -2128,6 +2308,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/string:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/pkuintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/math.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/math.h:
@@ -2148,6 +2330,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/limits.h:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/gethostuuid.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_useconds_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_mode_t.h:
@@ -2159,6 +2343,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread/pthread_impl.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/climits:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/adxintrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/_xlocale.h:
 
@@ -2214,6 +2400,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/machine/endian.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/invpcidintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_timeval.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_attr_t.h:
@@ -2227,6 +2415,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_id_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/mach/machine/_structs.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx2intrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/libkern/_OSByteOrder.h:
 
@@ -2264,6 +2454,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/wait.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xtestintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_sigset_t.h:
 
 /Users/guomingfei/Desktop/cs248/draw-svg-master/src/drawsvg.cpp:
@@ -2300,6 +2492,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/__locale:
 
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_uuid_t.h:
+
 /Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/__stddef_max_align_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_pthread/_pthread_mutexattr_t.h:
@@ -2328,6 +2522,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/_types/_wctype_t.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vpopcntdqintrin.h:
+
 /Library/Developer/CommandLineTools/usr/include/c++/v1/cstdint:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/initializer_list:
@@ -2344,6 +2540,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/ctype.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vlintrin.h:
+
 /Library/Developer/CommandLineTools/usr/include/c++/v1/functional:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/system_error:
@@ -2355,6 +2553,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_wint_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/__wctype.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/avx512vbmiintrin.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/vector:
 
@@ -2376,6 +2576,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/_locale.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/shaintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/appleapiopts.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/_types/_uint16_t.h:
@@ -2390,6 +2592,10 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/stdio.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/vaesintrin.h:
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/unistd.h:
+
 /Users/guomingfei/Desktop/cs248/draw-svg-master/src/software_renderer.h:
 
 /Library/Developer/CommandLineTools/usr/include/c++/v1/cstddef:
@@ -2401,6 +2607,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_intptr_t.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_u_int64_t.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/clwbintrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/AvailabilityInternal.h:
 
@@ -2422,7 +2630,11 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_null.h:
 
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/vpclmulqdqintrin.h:
+
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_va_list.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/xsavecintrin.h:
 
 /Users/guomingfei/Desktop/cs248/draw-svg-master/src/png.h:
 
@@ -2435,6 +2647,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/usr/include/c++/v1/algorithm:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/i386/types.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/emmintrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_u_int32_t.h:
 
@@ -2473,6 +2687,8 @@ src/CMakeFiles/drawsvg.dir/viewport.cpp.o: /Users/guomingfei/Desktop/cs248/draw-
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/pthread.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/_types/_mach_port_t.h:
+
+/Library/Developer/CommandLineTools/usr/lib/clang/10.0.1/include/wbnoinvdintrin.h:
 
 /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/usr/include/sys/cdefs.h:
 

@@ -1,6 +1,6 @@
 #ifndef CS248_SOFTWARE_RENDERER_H
 #define CS248_SOFTWARE_RENDERER_H
-
+#define USE_PTHREAD
 #include <stdio.h>
 #include <vector>
 #include <queue>
@@ -46,17 +46,6 @@ class SoftwareRenderer : public SVGRenderer {
 
   // Clear pixel buffer
   inline void clear_buffer() {
-	printf("clear_buffer\n");
-	// set_pixel_buffer clear_buffer draw_svg resolve
-	printf("sample rate %d\n", sample_rate);
-	printf("pixel_buffer address %p\n", pixel_buffer);
- 	printf("sample_buffer address %p\n", sample_buffer);
-	// cover up errors, may have some problems
-	// no longer being covered up after commenting out SoftwareRendererImp::set_sample_rate
-	printf("width height sample_width sample_height %d %d %d %d\n", width, height, sample_width, sample_height);
-    // sample_width sample_height not properly initialized before calling clear_buffer
-	// sample_width = width*sample_rate;
-	// sample_height = height*sample_rate;
 	memset(pixel_buffer, 255, 4 * width * height);
 	memset(sample_buffer, 255, 4 * width * height * sample_rate * sample_rate);
 	// sample_buffer = (unsigned char*) calloc(4*sample_width*sample_height, sizeof(unsigned char));
@@ -120,6 +109,7 @@ public:
 
 	void bresenham_line(float x0, float y0, float x1, float y1, Color color);
 	void xiaolinwu_line(float x0, float y0, float x1, float y1, Color color);
+	static void *parallize_sample_in_triangle( void *arguments);
 private:
 
 	// Primitive Drawing //

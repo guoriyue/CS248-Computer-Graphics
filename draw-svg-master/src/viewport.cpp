@@ -25,7 +25,6 @@ void ViewportImp::set_viewbox( float x, float y, float span ) {
   m2(2,0) = 0; m2(2,1) = 0; m2(2,2) = 1;
   
   
-  printf("set new viewbox\n");
   set_canvas_to_norm(m1 * m2);
 }
 

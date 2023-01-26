@@ -4,7 +4,12 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-
+#include <assert.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <immintrin.h>
+#include <cstdlib>
+#include <xmmintrin.h>
 #include "triangulation.h"
 
 using namespace std;
@@ -72,7 +77,6 @@ void SoftwareRendererImp::fill_pixel(int x, int y, const Color &color) {
 }
 
 void SoftwareRendererImp::draw_svg( SVG& svg ) {
-  printf("start draw_svg\n");
   // set top level transformation
   transformation = canvas_to_screen;
 
@@ -102,7 +106,6 @@ void SoftwareRendererImp::draw_svg( SVG& svg ) {
 }
 
 void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
-  printf("set_sample_rate\n");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->sample_rate = sample_rate;
@@ -131,26 +134,19 @@ void SoftwareRendererImp::set_sample_rate( size_t sample_rate ) {
   }
   // how do I know where the whole program ends and free this buffer?
   this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
-  printf("finish set_sample_buffer sample part\n");
 }
 
 void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
                                              size_t width, size_t height ) {
                                               
-  printf("set_pixel_buffer\n");
   // Task 2: 
   // You may want to modify this for supersampling support
   this->pixel_buffer = pixel_buffer;
   this->width = width;
   this->height = height;
 
-  printf("set_pixel_buffer sample part\n");
   this->sample_width = width*sample_rate;
   this->sample_height = height*sample_rate;
-  printf("width height sample_rate %d %d %d\n", width, height, sample_rate);
-  printf("set_sample_buffer sample part\n");
-  printf("sample_buffer address %p\n", sample_buffer);
-  printf("this->sample_buffer address %p\n", this->sample_buffer);
   // this->sample_buffer = new unsigned char[this->sample_width*this->sample_height];
   // memset(this->sample_buffer, 255, 4*this->sample_width*this->sample_height);
 
@@ -163,7 +159,6 @@ void SoftwareRendererImp::set_pixel_buffer( unsigned char* pixel_buffer,
   }
   // how do I know where the whole program ends and free this buffer?
   this->sample_buffer = (unsigned char*) calloc(4*this->sample_width*this->sample_height, sizeof(unsigned char));
-  printf("finish set_sample_buffer sample part\n");
   // this->sample_width = width*sample_rate;
   // this->sample_height = height*sample_rate;
   // // this->sample_buffer = (unsigned char*) malloc(sizeof(unsigned char));
@@ -358,8 +353,18 @@ void SoftwareRendererImp::rasterize_point( float x, float y, Color color ) {
 
 void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1, Color color)
 {
-  if (dya <= dxa) { // absolute slope 0-1
-		if (dx >= 0) {
+	float dx = x1-x0;
+	float dy = y1-y0;
+	float dxa = abs(dx);
+	float dya = abs(dy);
+	float ex = dya-dxa / 2.0; // epsilon
+	float ey = dxa-dya / 2.0;
+	float mx; // max x, end iteration
+	float my; // max y, end iteration
+	float x; // for iteration
+	float y;
+	if (dya<=dxa) { // absolute slope 0-1
+		if (dx>=0) {
       // slope 0-1
 			x = x0;
 			y = y0;
@@ -372,28 +377,28 @@ void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1,
 			mx = x0;
 		}
 		fill_pixel (x, y, color);
-		while (x < mx) {
+		while (x<mx) {
 			x = x + 1;
-			if (ex < 0)
+			if (ex<0)
 			{
 				ex = ex + dya;
 			}
 			else
 			{
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+				if ((dx<0 && dy<0) || (dx>0 && dy>0)) {
 					y = y + 1;
 				}
 				else {
-					y = y - 1;
+					y = y-1;
 				}
-				ex = ex + (dya - dxa);
+				ex = ex + (dya-dxa);
 			}
 			fill_pixel (x, y, color);
 		}
 	}
 	else { 
-    // slope > 1
-		if (dy >= 0) { 
+    // slope>1
+		if (dy>=0) { 
       // positive slope
 			x = x0;
 			y = y0;
@@ -406,19 +411,19 @@ void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1,
 			my = y0;
 		}
 		fill_pixel (x, y, color);
-		while (y < my) {
+		while (y<my) {
 			y = y + 1;
-			if (ey <= 0) {
+			if (ey<=0) {
 				ey = ey + dxa;
 			}
 			else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+				if ((dx<0 && dy<0) || (dx>0 && dy>0)) {
 					x = x + 1;
 				}
 				else {
-					x = x - 1;
+					x = x-1;
 				}
-				ey = ey + (dxa - dya);
+				ey = ey + (dxa-dya);
 			}
 			fill_pixel (x, y, color);
 		}
@@ -427,19 +432,18 @@ void SoftwareRendererImp::xiaolinwu_line(float x0, float y0, float x1, float y1,
 
 void SoftwareRendererImp::bresenham_line(float x0, float y0, float x1, float y1, Color color)
 {
-  printf("bresenham_line bresenham_line bresenham_line bresenham_line bresenham_line\n");
-	float dx = x1 - x0;
-	float dy = y1 - y0;
+	float dx = x1-x0;
+	float dy = y1-y0;
 	float dxa = abs(dx);
 	float dya = abs(dy);
-	float ex = dya - dxa / 2.0; // epsilon
-	float ey = dxa - dya / 2.0;
-  float mx; // max x, end iteration
-  float my; // max y, end iteration
-  float x; // for iteration
-  float y;
-	if (dya <= dxa) { // absolute slope 0-1
-		if (dx >= 0) {
+	float ex = dya-dxa / 2.0; // epsilon
+	float ey = dxa-dya / 2.0;
+	float mx; // max x, end iteration
+	float my; // max y, end iteration
+	float x; // for iteration
+	float y;
+	if (dya<=dxa) { // absolute slope 0-1
+		if (dx>=0) {
       // slope 0-1
 			x = x0;
 			y = y0;
@@ -452,28 +456,28 @@ void SoftwareRendererImp::bresenham_line(float x0, float y0, float x1, float y1,
 			mx = x0;
 		}
 		fill_pixel (x, y, color);
-		while (x < mx) {
+		while (x<mx) {
 			x = x + 1;
-			if (ex < 0)
+			if (ex<0)
 			{
 				ex = ex + dya;
 			}
 			else
 			{
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+				if ((dx<0 && dy<0) || (dx>0 && dy>0)) {
 					y = y + 1;
 				}
 				else {
-					y = y - 1;
+					y = y-1;
 				}
-				ex = ex + (dya - dxa);
+				ex = ex + (dya-dxa);
 			}
 			fill_pixel (x, y, color);
 		}
 	}
 	else { 
-    // slope > 1
-		if (dy >= 0) { 
+    // slope>1
+		if (dy>=0) { 
       // positive slope
 			x = x0;
 			y = y0;
@@ -486,19 +490,19 @@ void SoftwareRendererImp::bresenham_line(float x0, float y0, float x1, float y1,
 			my = y0;
 		}
 		fill_pixel (x, y, color);
-		while (y < my) {
+		while (y<my) {
 			y = y + 1;
-			if (ey <= 0) {
+			if (ey<=0) {
 				ey = ey + dxa;
 			}
 			else {
-				if ((dx < 0 && dy < 0) || (dx > 0 && dy > 0)) {
+				if ((dx<0 && dy<0) || (dx>0 && dy>0)) {
 					x = x + 1;
 				}
 				else {
-					x = x - 1;
+					x = x-1;
 				}
-				ey = ey + (dxa - dya);
+				ey = ey + (dxa-dya);
 			}
 			fill_pixel (x, y, color);
 		}
@@ -519,6 +523,51 @@ void SoftwareRendererImp::rasterize_line( float x0, float y0,
   // Advanced Task
   // Drawing Smooth Lines with Line Width
 }
+#define NUM_THREADS 8
+struct sample_struct {
+    int index;
+    float *a; float *b; float *c;
+    int min_x; int max_x; int min_y; int max_y; 
+    int sample_rate; bool anti_clockwise;
+    Color color;
+    SoftwareRendererRef* ref;
+};
+
+// void *SoftwareRendererImp::parallize_sample_in_triangle( void *arguments) {
+//   struct sample_struct *args = (struct sample_struct *)arguments;   
+//   // divide the work into 8 threads, 2 * 4
+//   int index = args->index;
+//   int ix = floor(index / 4);
+//   int iy = index % 4;
+//   int min_x = args->min_x + ix * (args->max_x - args->min_x) / 2;
+//   int max_x = min(args->max_x, min_x + (args->max_x - args->min_x) / 2);
+//   int min_y = args->min_y + iy * (args->max_y - args->min_y) / 4;
+//   int max_y = min(args->max_y, min_y + (args->max_y - args->min_y) / 4);
+//   int sample_rate = args->sample_rate;
+//   float *a = args->a;
+//   float *b = args->b;
+//   float *c = args->c;
+//   bool anti_clockwise = args->anti_clockwise;
+//   Color color = args->color;
+//   SoftwareRendererRef* ref = args->ref;
+
+//   // at the beginning we want to directly call fill_pixel, but since we have to do traingle inside checks, so we have to call fill_sample
+//   for(int i=min_x; i<=max_x; i++){
+//     for(int j=min_y; j<=max_y; j++){
+//       for(int di=0; di<sample_rate; di++){
+//         for(int dj=0; dj<sample_rate; dj++){
+//           float sample_x=i+(2*di+1.0)/(2.0*sample_rate);
+//           float sample_y=j+(2*dj+1.0)/(2.0*sample_rate);
+//           float l[3]={a[0]*sample_x-b[0]*sample_y+c[0], a[1]*sample_x-b[1]*sample_y+c[1], a[2]*sample_x-b[2]*sample_y+c[2]};
+//           if((anti_clockwise && l[0]<=0 && l[1]<=0 && l[2]<=0) || (!anti_clockwise && l[0]>=0 && l[1]>=0 && l[2]>=0)){
+//             ref->fill_sample(i*sample_rate + di, j*sample_rate + dj, color);
+//           }
+//         }
+//       }
+//     }
+//   }
+//   return NULL;
+// }
 
 void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
                                               float x1, float y1,
@@ -557,6 +606,7 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   // }
 
   // at the beginning we want to directly call fill_pixel, but since we have to do traingle inside checks, so we have to call fill_sample
+  #pragma omp parallel for
   for(int i=min_x; i<=max_x; i++){
     for(int j=min_y; j<=max_y; j++){
       
@@ -573,6 +623,36 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
     }
   }
 
+  // // prepare to parallize testing samples in traingle
+  // pthread_t threads[NUM_THREADS];
+  // int result_code;
+  
+  // // create all threads one by one
+  // for (int i=0; i<NUM_THREADS; i++) {
+  //   // printf("IN MAIN: Creating thread %d.\n", i);
+  //   struct sample_struct args;
+  //   args.index = i;
+  //   args.a = a; args.b = b; args.c = c;
+  //   args.min_x = min_x; args.max_x = max_x; args.min_y = min_y; args.max_y = max_y;
+  //   args.sample_rate = sample_rate; args.anti_clockwise = anti_clockwise;
+  //   args.color = color;
+  //   args.ref = ref;
+  //   result_code = pthread_create(&threads[i], NULL, &SoftwareRendererImp::parallize_sample_in_triangle, (void *)&args);
+  //   assert(!result_code);
+  // }
+
+  // // printf("IN MAIN: All threads are created.\n");
+
+  // // wait for each thread to complete
+  // for (int i=0; i<NUM_THREADS; i++) {
+  //   result_code = pthread_join(threads[i], NULL);
+  //   assert(!result_code);
+  //   // printf("IN MAIN: Thread %d has ended.\n", i);
+  // }
+
+  // printf("IN MAIN: All threads have ended.\n");
+
+
   // 1 pixel different for stanford
   // 0 for traingles
   // 1 for cube
@@ -583,6 +663,8 @@ void SoftwareRendererImp::rasterize_triangle( float x0, float y0,
   // Implementing Triangle Edge Rules
 
 }
+
+
 
 void SoftwareRendererImp::rasterize_image( float x0, float y0,
                                            float x1, float y1,
@@ -598,7 +680,6 @@ void SoftwareRendererImp::resolve( void ) {
   // Task 2: 
   // Implement supersampling
   // You may also need to modify other functions marked with "Task 2".
-  printf("resolve\n");
   for(int i=0; i<width; i++){
     for(int j=0; j<height; j++){
       float r=0.0; float g=0.0; float b=0.0; float a=0.0;
