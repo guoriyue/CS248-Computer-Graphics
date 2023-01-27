@@ -21,4 +21,4 @@ For task 4, I first implemented the "sample_nearest" function to ensure the "ras
 
 For task 5, I followed the "Simple alpha compositing" instruction to implement the alpha_blending function. The tricky part is we need to pre-multiply the alpha value on both element color and canvas color.
 
-For task 6, I used adobe illustrator to draw a tree. I had to modify the SVG file manually because adobe illustrator used another way to specify the polygon fill and stroke color.s
+For task 6, I used adobe illustrator to draw a tree. I had to modify the SVG file manually because adobe illustrator used another way to specify the polygon fill and stroke color.
