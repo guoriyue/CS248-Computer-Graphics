@@ -29,6 +29,9 @@ public:
     std::vector<Primitive> destructure();
     void clear();
 
+    void SAH(size_t idx, size_t max_leaf_size);
+    Trace find_hit(const Ray& ray, size_t idx) const;
+
 private:
     class Node {
         BBox bbox;

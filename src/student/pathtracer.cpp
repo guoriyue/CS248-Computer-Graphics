@@ -44,10 +44,13 @@ Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
             xy += sampler.sample(pdf);
         }
         Ray out = camera.generate_ray(xy / wh);
-        // for shorter time
-        if (RNG::coin_flip(0.000003f)) {
-            log_ray(out, 10.0f);
-        }
+        // // for shorter time
+        // if (RNG::coin_flip(0.000003f)) {
+        //     log_ray(out, 10.0f);
+        // }
+        // if (x == 0 && y == 0) {
+        //     log_ray(out, 10.0f);
+        // }
         sum_ray += trace_ray(out);
     }
     return sum_ray / n_samples;
