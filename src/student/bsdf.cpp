@@ -29,7 +29,32 @@ Vec3 refract(Vec3 out_dir, float index_of_refraction, bool& was_internal) {
     // you want to compute the 'input' direction that would cause this output,
     // and to do so you can simply find the direction that out_dir would refract
     // _to_, as refraction is symmetric.
-    return Vec3();
+    Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
+
+    //check if the ray is same side as the normal
+    float cos_theta_i = dot(surface_normal, out_dir);
+    float eta_i_over_t;
+    if(cos_theta_i >= 0) {
+        eta_i_over_t = 1.0f/index_of_refraction;
+    } else {
+        eta_i_over_t = index_of_refraction/1.0f;
+    }
+
+    //check if the refraction is the total internal reflection
+    float cos_theta_t_sq = 1 - pow(eta_i_over_t,2)*(1 - pow(cos_theta_i,2));
+    if(cos_theta_t_sq < 0){
+        was_internal = true;
+        return Vec3();
+    }
+
+    was_internal = false;
+    float cos_theta_t = sqrt(cos_theta_t_sq);
+    if (cos_theta_i >= 0){
+        cos_theta_t = -cos_theta_t;
+    }
+    
+    Vec3 refract_dir = eta_i_over_t * (-out_dir) + (eta_i_over_t*dot(surface_normal, out_dir) + cos_theta_t )*surface_normal;
+    return refract_dir;
 }
 
 BSDF_Sample BSDF_Lambertian::sample(Vec3 out_dir) const {
@@ -86,7 +111,40 @@ BSDF_Sample BSDF_Glass::sample(Vec3 out_dir) const {
     ret.attenuation = Spectrum(); // What is the ratio of reflected/incoming light?
     ret.direction = Vec3();       // What direction should we sample incoming light from?
     ret.pdf = 0.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
-    return ret;
+
+    //Schlick's approximation
+    float R0 = pow(((1.0f - index_of_refraction)/(1+ index_of_refraction)),2);
+    Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
+    float cos_theta = abs(dot(out_dir, surface_normal));
+    float R_theta = R0 + (1-R0) * pow((1-cos_theta),5);
+
+    // check if it is total internal reflection
+    bool was_internal;
+    Vec3 refract_dir = refract(out_dir, index_of_refraction, was_internal);
+
+    if (was_internal){
+        ret.attenuation = R_theta * reflectance / cos_theta;
+        ret.direction = reflect(out_dir);
+        ret.pdf = R_theta;
+        return ret;
+    }
+    else {
+        //not total internal reflection
+        // (e.g., If the Fresnel reflectance is 0.9, then you should generate a reflection ray 90% of the time
+        bool is_reflection = RNG::coin_flip(R_theta);
+        if(is_reflection) {
+            ret.attenuation = R_theta * reflectance / cos_theta;
+            ret.direction = reflect(out_dir);
+            ret.pdf = R_theta;
+            return ret;
+        }
+        ret.attenuation = (1.0f - R_theta) * transmittance / cos_theta;
+        ret.direction = refract_dir;
+        ret.pdf = 1.0f - R_theta;
+        return ret;
+    }
+
+    
 }
 
 Spectrum BSDF_Glass::evaluate(Vec3 out_dir, Vec3 in_dir) const {
@@ -116,9 +174,12 @@ BSDF_Sample BSDF_Refract::sample(Vec3 out_dir) const {
     // Be wary of your eta1/eta2 ratio - are you entering or leaving the surface?
 
     BSDF_Sample ret;
-    ret.attenuation = Spectrum(); // What is the ratio of reflected/incoming light?
-    ret.direction = Vec3();       // What direction should we sample incoming light from?
-    ret.pdf = 0.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
+
+    bool was_internal;
+    Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
+    ret.attenuation = transmittance / abs(dot(out_dir, surface_normal)); // What is the ratio of reflected/incoming light?
+    ret.direction = refract(out_dir, index_of_refraction, was_internal);       // What direction should we sample incoming light from?
+    ret.pdf = 1.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
     return ret;
 }
 
