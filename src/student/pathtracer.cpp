@@ -11,8 +11,8 @@ namespace PT {
 //
 Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
 
-    // Vec2 xy((float)x, (float)y);
-    // Vec2 wh((float)out_w, (float)out_h);
+    Vec2 xy((float)x, (float)y);
+    Vec2 wh((float)out_w, (float)out_h);
 
     // TODO (PathTracer): Task 1
 
@@ -30,39 +30,50 @@ Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
     // if (RNG::coin_flip(0.0003f))
     //    log_ray(out, 10.0f);
 
-    Spectrum sum_ray;
+    // Spectrum sum_ray;
+    // Samplers::Rect::Uniform sampler;
+    //n_samples = 1;
+    // float pdf = 1.0f;
+    // for(size_t i = 0; i < n_samples; i++) {
+    //     Vec2 xy((float)x, (float)y);
+    //     Vec2 wh((float)out_w, (float)out_h);
+    //     if (n_samples == 1) {
+    //         xy += Vec2(0.5f, 0.5f);
+    //     }
+    //     else {
+    //         // This is equivalent to saying that the ray tracer wil shoot n_samples camera rays per pixel.
+    //         xy += sampler.sample(pdf);
+    //     }
+    //     Ray out = camera.generate_ray(xy / wh);
+    //     // // for shorter time
+    //     // if (RNG::coin_flip(0.000003f)) {
+    //     //     log_ray(out, 10.0f);
+    //     // }
+    //     // if (x == 0 && y == 0) {
+    //     //     log_ray(out, 10.0f);
+    //     // }
+    //     sum_ray += trace_ray(out);
+    // }
+    // return sum_ray / n_samples;
+
     Samplers::Rect::Uniform sampler;
-    n_samples = 1;
-    float pdf = 1.0f;
-    for(size_t i = 0; i < n_samples; i++) {
-        Vec2 xy((float)x, (float)y);
-        Vec2 wh((float)out_w, (float)out_h);
-        if (n_samples == 1) {
-            xy += Vec2(0.5f, 0.5f);
-        }
-        else {
-            // This is equivalent to saying that the ray tracer wil shoot n_samples camera rays per pixel.
-            xy += sampler.sample(pdf);
-        }
-        Ray out = camera.generate_ray(xy / wh);
-        // // for shorter time
-        // if (RNG::coin_flip(0.000003f)) {
-        //     log_ray(out, 10.0f);
-        // }
-        // if (x == 0 && y == 0) {
-        //     log_ray(out, 10.0f);
-        // }
-        sum_ray += trace_ray(out);
+    float pdf;
+
+    if (n_samples == 1) {
+        xy += Vec2(0.5f, 0.5f);
     }
-    return sum_ray / n_samples;
-    
-    // // As an example, the code below generates a ray through the bottom left of the
-    // // specified pixel
-    // Ray out = camera.generate_ray(xy / wh);
+    else {
+        xy += sampler.sample(pdf);
+    }
+    // As an example, the code below generates a ray through the bottom left of the
+    // specified pixel
+    Ray out = camera.generate_ray(xy / wh);
     // if (RNG::coin_flip(0.0005f)) {
     //     log_ray(out, 10.0f);
     // }
-    // return trace_ray(out);
+    return trace_ray(out);
+
+
 }
 
 Spectrum Pathtracer::trace_ray(const Ray& ray) {
@@ -179,7 +190,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
     Vec3 newDir = bsdf_sample.direction;
-    Spectrum beta = bsdf_sample.attenuation * abs(dot(hit.normal, newDir)) * (1 / bsdf_sample.pdf);
+    Spectrum beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / bsdf_sample.pdf);
     Spectrum recursive_ray_throughtput = beta * ray.throughput;
     // follow the sudo code on slide 58 from the "Global illumination" class
 
