@@ -66,9 +66,6 @@ Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
 }
 
 Spectrum Pathtracer::trace_ray(const Ray& ray) {
-
-
-
     // Trace ray into scene. If nothing is hit, sample the environment
     Trace hit = scene.hit(ray);
     if(!hit.hit) {
@@ -182,22 +179,23 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
     Vec3 newDir = bsdf_sample.direction;
-    newDir = object_to_world.rotate(newDir);
-    Spectrum beta = bsdf_sample.attenuation * dot(newDir.unit(), hit.normal.unit()) * (1 / bsdf_sample.pdf);
+    Spectrum beta = bsdf_sample.attenuation * abs(dot(hit.normal, newDir)) * (1 / bsdf_sample.pdf);
     Spectrum recursive_ray_throughtput = beta * ray.throughput;
-    // follow the sudo code on slide 56 from the "Global illumination" class
-    float q = 0.25;
+    // follow the sudo code on slide 58 from the "Global illumination" class
+
+    float q = 1 - fmax(0, fmin(beta.luma(), 1));
+    q = 0.5*q;
     if(RNG::unit() < q){
         return radiance_out;
     }
-    else{
+    else {
         beta = beta / (1-q);
     }
 
     // (4) Create new scene-space ray and cast it to get incoming light. As with shadow rays,
     // you should modify time_bounds so that the ray does not intersect at time = 0. Remember to
     // set the new throughput and depth values.
-
+    newDir = object_to_world.rotate(newDir);
     Ray scene_space_ray = Ray(hit.position, newDir);
     scene_space_ray.throughput = recursive_ray_throughtput;
     scene_space_ray.depth = ray.depth + 1;
@@ -210,4 +208,5 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     radiance_out = radiance_out + result * beta + bsdf_sample.emissive;
     return radiance_out;
 }
+
 } // namespace PT
