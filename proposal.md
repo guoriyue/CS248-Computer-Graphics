@@ -18,6 +18,10 @@ Boyu Zhang:
 
 Implement multi-spectral rendering for prism-like effects.
 
+#### Nice to haves:
+
+Smoke or fluid simulation.
+
 #### Expected visual deliverables:
 
 ![Spectral rendering - Eclat Digital](https://eclat-digital.com/wp-content/uploads/2021/11/spectral-prism1-600x387-1.jpg)
