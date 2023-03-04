@@ -6,5 +6,5 @@ Mingfei Guo mfguo@stanford.edu
 
 Summary:
 
-1. Improve current BVH using SIMD.
-2. 
+1. Improve current BVH using SIMD (Mingfei Guo).
+2. Implement volume metric rendering for smoke effect (Boyu Zhang).
