@@ -4,4 +4,7 @@ Boyu Zhang bzhang99@stanford.edu
 
 Mingfei Guo mfguo@stanford.edu
 
-Summary: 
+Summary:
+
+1. Improve current BVH using SIMD.
+2. 
