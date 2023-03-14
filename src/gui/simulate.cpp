@@ -4,7 +4,6 @@
 
 #include "manager.h"
 #include "simulate.h"
-
 namespace Gui {
 
 const char* Solid_Type_Names[(int)Solid_Type::count] = {"Sphere", "Cube", "Cylinder", "Torus",
@@ -113,6 +112,7 @@ void Simulate::build_scene(Scene& scene) {
     });
 
     thread_pool.wait();
+
     scene_bvh.build(std::move(obj_list));
 }
 

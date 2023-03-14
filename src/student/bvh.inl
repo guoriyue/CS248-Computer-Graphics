@@ -3,11 +3,14 @@
 #include "debug.h"
 #include <stack>
 
+#include "../rays/ispc_bvh.h"
+
 namespace PT {
 
 // construct BVH hierarchy given a vector of prims
 template<typename Primitive>
 void BVH<Primitive>::build(std::vector<Primitive>&& prims, size_t max_leaf_size) {
+    printf("Inside BVH::build\n");
 
     // NOTE (PathTracer):
     // This BVH is parameterized on the type of the primitive it contains. This allows
@@ -123,7 +126,8 @@ void BVH<Primitive>::build(std::vector<Primitive>&& prims, size_t max_leaf_size)
     node.bbox = bb;
     node.start = 0;
     node.size = primitives.size();
-    SAH(root_node_addr, max_leaf_size);
+    // SAH(root_node_addr, max_leaf_size);
+    ispc::SAH(root_node_addr, max_leaf_size);
 }
 
 template<typename Primitive>

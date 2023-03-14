@@ -162,8 +162,9 @@ void Pathtracer::build_scene(Scene& layout_scene) {
 
     thread_pool.wait();
     build_lights(layout_scene, obj_list);
-
+    printf("Building BVHs...\n");
     scene.build(std::move(obj_list));
+    printf("Done building BVHs\n");
 }
 
 void Pathtracer::set_sizes(size_t w, size_t h, size_t samples, size_t area_samples, size_t depth) {

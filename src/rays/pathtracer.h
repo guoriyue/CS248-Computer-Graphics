@@ -38,6 +38,7 @@ public:
     float progress() const;
     std::pair<float, float> completion_time() const;
 
+
 private:
     // Internal
     void build_scene(Scene& scene);
@@ -62,6 +63,9 @@ private:
     void log_ray(const Ray& ray, float t, Spectrum color = Spectrum{1.0f});
 
     BVH<Object> scene;
+    
+    // std::vector<ispc::BVH> ispc_scene;
+
     std::vector<Light> lights;
     std::vector<BSDF> materials;
     std::optional<Env_Light> env_light; // only one of these per scene

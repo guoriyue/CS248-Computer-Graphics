@@ -2,7 +2,6 @@
 #include "rig.h"
 #include "../scene/renderer.h"
 #include "manager.h"
-
 namespace Gui {
 
 bool Rig::keydown(Widgets& widgets, Undo& undo, SDL_Keysym key) {
