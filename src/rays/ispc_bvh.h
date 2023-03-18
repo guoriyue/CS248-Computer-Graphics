@@ -50,17 +50,6 @@ struct BBox {
 };
 #endif
 
-#ifndef __ISPC_STRUCT_Node__
-#define __ISPC_STRUCT_Node__
-struct Node {
-    struct BBox bbox;
-    uint32_t start;
-    uint32_t size;
-    uint32_t l;
-    uint32_t r;
-};
-#endif
-
 #ifndef __ISPC_STRUCT_Vec2__
 #define __ISPC_STRUCT_Vec2__
 struct Vec2 {
@@ -76,7 +65,7 @@ struct Vec2 {
 #if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
 extern "C" {
 #endif // __cplusplus
-    extern void bbox_hit(const struct Ray &ray, struct Node * nodes, struct Vec2 * times);
+    extern void bbox_hit(const struct Ray &ray, struct BBox * ispc_bboxs, struct Vec2 * ispc_times, bool * ispc_hits);
 #if defined(__cplusplus) && (! defined(__ISPC_NO_EXTERN_C) || !__ISPC_NO_EXTERN_C )
 } /* end extern C */
 #endif // __cplusplus

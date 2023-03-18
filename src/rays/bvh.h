@@ -31,6 +31,11 @@ public:
 
     void SAH(size_t idx, size_t max_leaf_size);
     Trace find_hit(const Ray& ray, size_t idx) const;
+    Trace hit_queue(const Ray& ray) const;
+    
+    void SAH4(size_t idx, size_t max_leaf_size);
+    void bucket_split(size_t idx, size_t& rangel, size_t& ranger, BBox& split_leftBox, BBox& split_rightBox);
+    Trace hit_queue4(const Ray& ray) const;
 
 private:
     class Node {
@@ -42,7 +47,20 @@ private:
     };
     size_t new_node(BBox box = {}, size_t start = 0, size_t size = 0, size_t l = 0, size_t r = 0);
 
-    std::vector<Node> nodes;
+    // std::vector<Node> nodes;
+
+    class Node4 {
+        BBox bbox;
+        size_t start, size;
+        size_t child[4];
+
+        bool is_leaf4() const;
+        friend class BVH<Primitive>;
+    };
+    size_t new_node4(BBox box = {}, size_t start = 0, size_t size = 0);
+
+    std::vector<Node4> nodes;
+
     std::vector<Primitive> primitives;
     size_t root_idx = 0;
 };

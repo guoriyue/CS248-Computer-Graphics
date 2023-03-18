@@ -1,4 +1,4 @@
-#define SIMD_WIDTH 2
+#define SIMD_WIDTH 4
 // can't use class in ISPC
 // will get Error: syntax error, unexpected identifier.
 
@@ -31,17 +31,128 @@ struct Trace {
     int material;
 };
 
-task void bbox_hit_task(const uniform Ray& ray, uniform Node nodes[], uniform Vec2 times[], uniform size_t depth) {
-    if (depth > 3) {
-        return;
-    }
-    launch[0] bbox_hit_task(ray, nodes, times, depth + 1);
-    launch[1] bbox_hit_task(ray, nodes, times, depth + 1);
+inline void swap(float& a, float& b) {
+    float tmp = a;
+    a = b;
+    b = tmp;
 }
 
-export void bbox_hit(const uniform Ray& ray, uniform Node nodes[], uniform Vec2 times[]) {
-    launch[0] bbox_hit_task(ray, nodes, times, 0);
+task void bbox_hit_task(const uniform Ray& ray, uniform BBox ispc_bboxs[], uniform Vec2 ispc_times[],
+uniform bool ispc_hits[]) {
+    Vec2 times = ispc_times[taskIndex];
+    BBox bbox = ispc_bboxs[taskIndex];
+
+    float tmin = (bbox.min.x - ray.point.x) / ray.dir.x; 
+    float tmax = (bbox.max.x - ray.point.x) / ray.dir.x; 
+ 
+    if (tmin > tmax) {
+        swap(tmin, tmax);
+    }
+ 
+    float tymin = (bbox.min.y - ray.point.y) / ray.dir.y; 
+    float tymax = (bbox.max.y - ray.point.y) / ray.dir.y; 
+ 
+    if (tymin > tymax) {
+        swap(tymin, tymax);
+    }
+ 
+    if ((tmin > tymax) || (tymin > tmax)) {
+        // return false;
+        ispc_hits[taskIndex] = false; 
+    }
+
+    tmin = max(tmin, tymin);
+    tmax = min(tmax, tymax);
+ 
+    float tzmin = (bbox.min.z - ray.point.z) / ray.dir.z; 
+    float tzmax = (bbox.max.z - ray.point.z) / ray.dir.z; 
+ 
+    if (tzmin > tzmax) {
+        swap(tzmin, tzmax); 
+    }
+ 
+    if ((tmin > tzmax) || (tzmin > tmax)) {
+        // return false; 
+        ispc_hits[taskIndex] = false;
+    }
+    
+    tzmin = max(tzmin, tmin);
+    tzmax = min(tzmax, tmax);
+    
+    times.x = tmin;
+    times.y = tmax;
+    // return true;
+    ispc_hits[taskIndex] = true;
 }
+
+// Trace Triangle::hit(const Ray& ray) const {
+//     // printf("Triangle::hit\n");
+//     // Vertices of triangle - has postion and surface normal
+//     // See rays/tri_mesh.h for a description of this struct
+    
+//     Tri_Mesh_Vert v_0 = vertex_list[v0];
+//     Tri_Mesh_Vert v_1 = vertex_list[v1];
+//     Tri_Mesh_Vert v_2 = vertex_list[v2];
+
+//     // here just to avoid unused variable warnings, students should remove the following three lines.
+//     (void)v_0;
+//     (void)v_1;
+//     (void)v_2;
+    
+//     // TODO (PathTracer): Task 2
+//     // Intersect this ray with a triangle defined by the above three points.
+//     // Intersection should yield a ray t-value, and a hit point (u,v) on the surface of the triangle
+
+//     // You'll need to fill in a "Trace" struct describing information about the hit (or lack of hit)
+
+//     Trace ret;
+//     ret.origin = ray.point;
+//     ret.hit = false;       // was there an intersection?
+//     ret.distance = 0.0f;   // at what distance did the intersection occur?
+//     ret.position = Vec3{}; // where was the intersection?
+//     ret.normal = Vec3{};   // what was the surface normal at the intersection?
+//                            // (this should be interpolated between the three vertex normals)
+
+//     Vec3 e_1 = v_1.position - v_0.position;
+//     Vec3 e_2 = v_2.position - v_0.position;
+//     Vec3 s = ray.point - v_0.position;
+//     auto determinant = [](auto e_1, auto e_2, auto dir) {
+//         return dot(cross(e_1, dir), e_2);
+//     };
+
+//     // float denominator = dot(cross(e_1, ray.dir), e_2);
+//     float denominator = determinant(e_1, e_2, ray.dir);
+//     if (std::abs(denominator) < 1e-6) {
+//         // parallel to the plane
+//         return ret;
+//     }
+//     Vec3 uvt = Vec3(-1 * determinant(s, ray.dir, e_2), determinant(e_1, s, ray.dir), -1 * determinant(s, e_1, e_2)) / denominator;
+    
+//     float u = uvt[0];
+//     float v = uvt[1];
+//     float t = uvt[2];
+    
+
+//     if (0 <= u && u <= 1 && 0 <= v && v <= 1 && u + v <= 1 && ray.dist_bounds[0] <= t && t <= ray.dist_bounds[1]) {
+//         // printf("u: %f, v: %f, t: %f\n", u, v, t);
+//         // printf("ray.dist_bounds[0] %f, ray.dist_bounds[1] %f\n", ray.dist_bounds[0], ray.dist_bounds[1]);
+//         ret.hit = true;
+//         ret.distance = t;
+//         ret.position = ray.point + ray.dir * t;
+//         ret.normal = (1 - u - v) * v_0.normal + u * v_1.normal + v * v_2.normal;
+//     }
+
+//     return ret;
+// }
+
+
+export void bbox_hit(const uniform Ray& ray, uniform BBox ispc_bboxs[], uniform Vec2 ispc_times[],
+uniform bool ispc_hits[]) {
+    // launch[0] bbox_hit_task(ray, nodes, times, 0);
+    launch[SIMD_WIDTH] bbox_hit_task(ray, ispc_bboxs, ispc_times, ispc_hits);
+}
+
+
 
 
 // task void find_hit_task(uniform size_t idx, uniform size_t max_leaf_size, uniform Node nodes[], uniform size_t depth) {
@@ -101,7 +212,7 @@ export void bbox_hit(const uniform Ray& ray, uniform Node nodes[], uniform Vec2 
 // //             BBox pbb = p.bbox();
             
 // //             int bucket_idx = floor((pbb.center()[i] - my_min) / interval);
-// //             bucket_idx = std::clamp(bucket_idx, 0, bucket_num - 1);
+// //             bucket_idx = clamp(bucket_idx, 0, bucket_num - 1);
 // //             buckets[bucket_idx].enclose(pbb);
 // //             prim_count[bucket_idx]++;
 // //         }
@@ -149,7 +260,7 @@ export void bbox_hit(const uniform Ray& ray, uniform Node nodes[], uniform Vec2 
 // //         BBox pbb = p.bbox();
 // //         if (pbb.center()[min_cost_axis] < min_cost_split)
 // //         {
-// //             std::swap(primitives[j], primitives[first]);
+// //             swap(primitives[j], primitives[first]);
 // //             ++first;
 // //         }
 // //     }
@@ -179,10 +290,10 @@ export void bbox_hit(const uniform Ray& ray, uniform Node nodes[], uniform Vec2 
 
 
 // // .data()
-// // export void build(std::vector<Primitive>&& prims, size_t max_leaf_size) {
+// // export void build(vector<Primitive>&& prims, size_t max_leaf_size) {
 // export void SAH(uniform size_t idx, uniform size_t max_leaf_size) {
 //     // nodes.clear();
-//     // primitives = std::move(prims);
+//     // primitives = move(prims);
 
 //     // BBox bb;
 //     // for(size_t i = 0; i < primitives.size(); ++i) {
