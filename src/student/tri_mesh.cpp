@@ -31,7 +31,7 @@ BBox Triangle::bbox() const {
 }
 
 Trace Triangle::hit(const Ray& ray) const {
-
+    // printf("Triangle::hit\n");
     // Vertices of triangle - has postion and surface normal
     // See rays/tri_mesh.h for a description of this struct
     

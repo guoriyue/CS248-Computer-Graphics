@@ -1,0 +1,3 @@
+g++ -c -m64 -O3 -Wall /Users/guomingfei/Desktop/Cardinal3D-master-lab3/src/tasksys.cpp -lm -lpthread -o /Users/guomingfei/Desktop/Cardinal3D-master-lab3/build/tasksys.o
+
+/Users/guomingfei/Desktop/ispc-v1.19.0-macOS/bin/ispc --target=avx2-i32x8 --arch=x86-64 /Users/guomingfei/Desktop/Cardinal3D-master-lab3/src/rays/ispc_bvh.ispc  --header-outfile=/Users/guomingfei/Desktop/Cardinal3D-master-lab3/src/rays/ispc_bvh.h -o /Users/guomingfei/Desktop/Cardinal3D-master-lab3/build/ispc_bvh.o

@@ -145,7 +145,9 @@ set(SOURCES_CARDINAL3D ${SOURCES_CARDINAL3D_UTIL}
                      ${SOURCES_CARDINAL3D_LIB}
                      "src/app.cpp"
                      "src/app.h"
-                     "src/main.cpp")
+                     "src/main.cpp"
+                     "build/tasksys.o"
+                     "build/ispc_bvh.o")
 
 
 # setup OS-specific options
@@ -176,11 +178,10 @@ endif()
 # /Users/guomingfei/Desktop/ispc-v1.19.0-macOS/bin/ispc --target=avx2-i32x8 --arch=x86-64 /Users/guomingfei/Desktop/Cardinal3D-master-lab3/src/rays/ispc_bvh.ispc  --header-outfile=include/ispc_bvh.h -o ispc_bvh.o
 
 # define executable
-# pathtracer_ispc.o
 if(WIN32)
-    add_executable(Cardinal3D ${SOURCES_CARDINAL3D} ispc_bvh.o)
+    add_executable(Cardinal3D ${SOURCES_CARDINAL3D}) # ispc_bvh.o
 else()
-    add_executable(Cardinal3D ${SOURCES_CARDINAL3D} ispc_bvh.o)
+    add_executable(Cardinal3D ${SOURCES_CARDINAL3D}) # ispc_bvh.o
 endif()
 
 

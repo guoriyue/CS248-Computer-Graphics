@@ -68,7 +68,7 @@ BBox Sphere::bbox() const {
 // }
 
 Trace Sphere::hit(const Ray& ray) const {
-
+    // printf("Sphere::hit()\n");
     // TODO (PathTracer): Task 2
     // Intersect this ray with a sphere of radius Sphere::radius centered at the origin.
 

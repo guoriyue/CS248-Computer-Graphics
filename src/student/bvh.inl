@@ -126,8 +126,10 @@ void BVH<Primitive>::build(std::vector<Primitive>&& prims, size_t max_leaf_size)
     node.bbox = bb;
     node.start = 0;
     node.size = primitives.size();
-    // SAH(root_node_addr, max_leaf_size);
-    ispc::SAH(root_node_addr, max_leaf_size);
+    
+    SAH(root_node_addr, max_leaf_size);
+
+    // ispc::SAH(root_node_addr, max_leaf_size);
 }
 
 template<typename Primitive>
@@ -256,7 +258,89 @@ Trace BVH<Primitive>::hit(const Ray& ray) const {
     //     ret = Trace::min(ret, hit);
     // }
     // return ret;
-    return find_hit(ray, 0);
+    // return find_hit(ray, 0);
+
+    // queue for traversal
+    auto ispc_Vec3 = [](const Vec3& v) {
+		ispc::Vec3 res;
+		res.x = v.x; res.y = v.y; res.z = v.z;
+		return res;
+	};
+
+    Trace ret;
+    std::stack<size_t> node_stack;
+    node_stack.push(0);
+    while(!node_stack.empty()) {
+        size_t node_idx = node_stack.top();
+        node_stack.pop();
+        const Node& node = nodes[node_idx];
+
+        // with early return
+        Vec2 times0{};
+        bool hit0 = node.bbox.hit(ray, times0);
+        if(!hit0 || (ret.hit && ret.distance <= times0.x))
+        {
+            continue;
+        }
+        
+        if(node.is_leaf()) {
+            size_t node_end = node.start + node.size;
+            for(size_t i = node.start; i < node_end; ++i) {
+                // printf("hit leaf node\n");
+                Trace hit = primitives[i].hit(ray);
+                ret = Trace::min(ret, hit);
+            }
+        } else {
+            std::vector<ispc::Vec2> ispc_times;
+            std::vector<ispc::Node> ispc_nodes;
+            ispc_times.resize(2);
+            ispc_nodes.resize(2);
+            ispc_nodes[0].bbox.min = ispc_Vec3(nodes[node.l].bbox.min);
+            ispc_nodes[0].bbox.max = ispc_Vec3(nodes[node.l].bbox.max);
+            ispc_nodes[1].bbox.min = ispc_Vec3(nodes[node.r].bbox.min);
+            ispc_nodes[1].bbox.max = ispc_Vec3(nodes[node.r].bbox.max);
+            ispc_nodes[0].start = nodes[node.l].start;
+            ispc_nodes[0].size = nodes[node.l].size;
+            ispc_nodes[0].l = nodes[node.l].l;
+            ispc_nodes[0].r = nodes[node.l].r;
+            ispc_nodes[1].start = nodes[node.r].start;
+            ispc_nodes[1].size = nodes[node.r].size;
+            ispc_nodes[1].l = nodes[node.r].l;
+            ispc_nodes[1].r = nodes[node.r].r;
+            
+            // ispc_nodes[0] = ispc::Node(ispc_Vec3(nodes[node.l].bbox.min), ispc_Vec3(nodes[node.l].bbox.max), nodes[node.l].start, nodes[node.l].size, nodes[node.l].l, nodes[node.l].r);
+            // ispc_nodes[1] = ispc::Node(ispc_Vec3(nodes[node.r].bbox.min), ispc_Vec3(nodes[node.r].bbox.max), nodes[node.r].start, nodes[node.r].size, nodes[node.r].l, nodes[node.r].r);
+
+            // ispc::Ray ispc_ray = ispc::Ray(ispc_Vec3(ray.point), ispc_Vec3(ray.dir));
+            ispc::Ray ispc_ray;
+            ispc_ray.point = ispc_Vec3(ray.point);
+            ispc_ray.dir = ispc_Vec3(ray.dir);
+            
+            
+            ispc::bbox_hit(ispc_ray, ispc_nodes.data(), ispc_times.data());
+
+            Vec2 times1, times2;
+            bool hit1 = nodes[node.l].bbox.hit(ray, times1);
+            bool hit2 = nodes[node.r].bbox.hit(ray, times2);
+
+            if(hit1 && hit2) {
+                size_t first = times1.x < times2.x ? node.l : node.r;
+                size_t second = times1.x < times2.x ? node.r : node.l;
+                node_stack.push(first);
+                node_stack.push(second);
+            } else if(hit1) {
+                node_stack.push(node.l);
+            } else if(hit2) {
+                node_stack.push(node.r);
+            }
+        }
+    }
+    return ret;
+
+    // ispc::Ray ispc_ray = ispc::Ray(ray);
+    // ispc::Node* ispc_nodes = (ispc::Node*)nodes.data();
+    // ispc::find_hit(ispc_ray, 0, ispc_nodes);
+    // return ret;
 }
 
 template<typename Primitive>

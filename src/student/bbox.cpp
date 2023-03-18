@@ -3,6 +3,7 @@
 #include "debug.h"
 
 bool BBox::hit(const Ray& ray, Vec2& times) const {
+    // printf("BBox::hit()\n");
 
     // TODO (PathTracer):
     // Implement ray - bounding box intersection test
