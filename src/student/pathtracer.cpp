@@ -2,6 +2,7 @@
 #include "../rays/pathtracer.h"
 #include "../rays/samplers.h"
 #include "../util/rand.h"
+#include "../lib/newspectrum.h"
 #include "debug.h"
 
 namespace PT {
@@ -9,7 +10,7 @@ namespace PT {
 // Return the radiance along a ray entering the camera and landing on a
 // point within pixel (x,y) of the output image.
 //
-Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
+RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
 
     Vec2 xy((float)x, (float)y);
     Vec2 wh((float)out_w, (float)out_h);
@@ -68,10 +69,14 @@ Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
     // As an example, the code below generates a ray through the bottom left of the
     // specified pixel
     Ray out = camera.generate_ray(xy / wh);
-    // if (RNG::coin_flip(0.0005f)) {
-    //     log_ray(out, 10.0f);
-    // }
-    return trace_ray(out);
+    if (RNG::coin_flip(0.0005f)) {
+        log_ray(out, 10.0f);
+    }
+    Spectrum p = trace_ray(out);
+    RT_Result ret;
+    ret.lamda = out.lamda;
+    ret.p = p;
+    return ret;
 
 
 }
@@ -147,7 +152,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
                 // modify the time_bounds of your shadow ray to account for this. Using EPS_F is
                 // recommended.
 
-                Ray shadow_ray = Ray(hit.position, sample.direction);
+                Ray shadow_ray = Ray(hit.position, sample.direction, ray.lamda);
                 shadow_ray.dist_bounds = Vec2(EPS_F, sample.distance);
                 if(scene.hit(shadow_ray).hit) {
                     continue;
@@ -183,19 +188,21 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // (2) Randomly select a new ray direction (it may be reflection or transmittance
     // ray depending on surface type) using bsdf.sample()
 
-    BSDF_Sample bsdf_sample = bsdf.sample(out_dir);
+    BSDF_Sample bsdf_sample = bsdf.sample(out_dir, ray.lamda);
 
     // (3) Compute the throughput of the recursive ray. This should be the current ray's
     // throughput scaled by the BSDF attenuation, cos(theta), and BSDF sample PDF.
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
+
+    float lambda_pdf = 1 /2.0f;
     Vec3 newDir = bsdf_sample.direction;
-    Spectrum beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / bsdf_sample.pdf);
+    float beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / (bsdf_sample.pdf*lambda_pdf));
     Spectrum recursive_ray_throughtput = beta * ray.throughput;
     // follow the sudo code on slide 58 from the "Global illumination" class
 
-    float q = 1 - fmax(0, fmin(beta.luma(), 1));
-    q = 0.5*q;
+    float q = 1 - fmax(0, fmin(beta, 1));
+    q *= 0.5;
     if(RNG::unit() < q){
         return radiance_out;
     }
@@ -207,7 +214,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // you should modify time_bounds so that the ray does not intersect at time = 0. Remember to
     // set the new throughput and depth values.
     newDir = object_to_world.rotate(newDir);
-    Ray scene_space_ray = Ray(hit.position, newDir);
+    Ray scene_space_ray = Ray(hit.position, newDir,ray.lamda);
     scene_space_ray.throughput = recursive_ray_throughtput;
     scene_space_ray.depth = ray.depth + 1;
     scene_space_ray.dist_bounds = Vec2(EPS_F, std::numeric_limits<float>::infinity());

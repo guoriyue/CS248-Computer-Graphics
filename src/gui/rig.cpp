@@ -181,11 +181,11 @@ void Rig::hover(Vec3 cam, Vec2 spos, Vec3 dir) {
         assert(new_joint);
         assert(my_obj);
 
-        Ray f(cam, dir);
+        Ray f(cam, dir,500.0);
         PT::Trace hit1 = mesh_bvh.hit(f);
         if(!hit1.hit) return;
 
-        Ray s(hit1.position + dir * EPS_F, dir);
+        Ray s(hit1.position + dir * EPS_F, dir,500.0);
         PT::Trace hit2 = mesh_bvh.hit(s);
 
         Vec3 pos = hit1.position;

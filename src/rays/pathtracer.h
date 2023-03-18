@@ -21,6 +21,12 @@ class Widget_Render;
 
 namespace PT {
 
+struct RT_Result {
+    Spectrum p;
+    float lamda;
+};
+
+
 class Pathtracer {
 public:
     Pathtracer(Gui::Widget_Render& gui, Vec2 screen_dim);
@@ -57,7 +63,7 @@ private:
     std::atomic<size_t> completed_epochs;
 
     /// Relevant to student
-    Spectrum trace_pixel(size_t x, size_t y);
+    RT_Result trace_pixel(size_t x, size_t y);
     Spectrum trace_ray(const Ray& ray);
     void log_ray(const Ray& ray, float t, Spectrum color = Spectrum{1.0f});
 
@@ -70,5 +76,7 @@ private:
     Camera camera;
     size_t out_w, out_h, n_samples, n_area_samples, max_depth;
 };
+
+
 
 } // namespace PT

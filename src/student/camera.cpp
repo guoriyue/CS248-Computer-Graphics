@@ -1,6 +1,7 @@
 
 #include "../util/camera.h"
 #include "../rays/samplers.h"
+#include "../util/rand.h"
 #include "debug.h"
 #include "math.h"
 
@@ -29,7 +30,9 @@ Ray Camera::generate_ray(Vec2 screen_coord) const {
     Vec3 dir = Vec3(x, y, -1.0f).unit();
     Vec3 point = Vec3(0, 0, 0);
 
-    Ray ray(point, dir);
+    float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+    float lamda = 400.0f + r*(760.0f - 400.0f);
+    Ray ray(point, dir,lamda);
     ray.transform(iview);
 
     return ray;

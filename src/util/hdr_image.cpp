@@ -4,6 +4,7 @@
 
 #include <sf_libs/stb_image.h>
 #include <sf_libs/tinyexr.h>
+#include "../lib/newspectrum.h"
 
 HDR_Image::HDR_Image() : w(0), h(0) {
 }
@@ -35,30 +36,30 @@ void HDR_Image::resize(size_t _w, size_t _h) {
     dirty = true;
 }
 
-void HDR_Image::clear(Spectrum color) {
+void HDR_Image::clear(NewSpectrum color) {
     for(auto& s : pixels) s = color;
     dirty = true;
 }
 
-Spectrum& HDR_Image::at(size_t i) {
+NewSpectrum& HDR_Image::at(size_t i) {
     assert(i < w * h);
     dirty = true;
     return pixels[i];
 }
 
-Spectrum HDR_Image::at(size_t i) const {
+NewSpectrum HDR_Image::at(size_t i) const {
     assert(i < w * h);
     return pixels[i];
 }
 
-Spectrum& HDR_Image::at(size_t x, size_t y) {
+NewSpectrum& HDR_Image::at(size_t x, size_t y) {
     assert(x < w && y < h);
     size_t idx = y * w + x;
     dirty = true;
     return pixels[idx];
 }
 
-Spectrum HDR_Image::at(size_t x, size_t y) const {
+NewSpectrum HDR_Image::at(size_t x, size_t y) const {
     assert(x < w && y < h);
     size_t idx = y * w + x;
     return pixels[idx];
@@ -91,7 +92,7 @@ std::string HDR_Image::load_from(std::string file) {
                 for(size_t i = 0; i < w; i++) {
                     size_t didx = 4 * (j * w + i);
                     size_t pidx = (h - j - 1) * w + i;
-                    pixels[pidx] = Spectrum(data[didx], data[didx + 1], data[didx + 2]);
+                    pixels[pidx] = NewSpectrum(data[didx], data[didx + 1], data[didx + 2]);
                     if(!pixels[pidx].valid()) pixels[pidx] = {};
                 }
             }
@@ -115,15 +116,16 @@ std::string HDR_Image::load_from(std::string file) {
             float r = data[i] / 255.0f;
             float g = data[i + 1] / 255.0f;
             float b = data[i + 2] / 255.0f;
-            pixels[i / channels] = Spectrum(r, g, b);
+            pixels[i / channels] = NewSpectrum(r, g, b);
+            if(!pixels[i / channels].valid()) pixels[i / channels] = {};
         }
 
         stbi_image_free(data);
 
-        for(size_t i = 0; i < pixels.size(); i++) {
-            pixels[i].make_linear();
-            if(!pixels[i].valid()) pixels[i] = {};
-        }
+        // for(size_t i = 0; i < pixels.size(); i++) {
+        //     pixels[i].make_linear();
+        //     if(!pixels[i].valid()) pixels[i] = {};
+        // }
     }
 
     last_path = file;
@@ -170,7 +172,7 @@ void HDR_Image::tonemap_to(std::vector<unsigned char>& data, float e) const {
         for(size_t i = 0; i < w; i++) {
 
             size_t pidx = (h - j - 1) * w + i;
-            const Spectrum& sample = pixels[pidx];
+            const Spectrum& sample = New2OldSpectrum(pixels[pidx]);
 
             float r = 1.0f - std::exp(-sample.r * exposure);
             float g = 1.0f - std::exp(-sample.g * exposure);

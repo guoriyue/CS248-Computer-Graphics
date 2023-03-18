@@ -2,6 +2,7 @@
 #include "pathtracer.h"
 #include "../geometry/util.h"
 #include "../gui/render.h"
+#include "../lib/newspectrum.h"
 
 #include <SDL2/SDL.h>
 #include <thread>
@@ -186,8 +187,8 @@ void Pathtracer::accumulate(const HDR_Image& sample) {
     accumulator_samples++;
     for(size_t j = 0; j < out_h; j++) {
         for(size_t i = 0; i < out_w; i++) {
-            Spectrum& s = accumulator.at(i, j);
-            const Spectrum& n = sample.at(i, j);
+            NewSpectrum& s = accumulator.at(i, j);
+            const NewSpectrum& n = sample.at(i, j);
             s += (n - s) * (1.0f / accumulator_samples);
         }
     }
@@ -202,9 +203,11 @@ void Pathtracer::do_trace(size_t samples) {
             size_t sampled = 0;
             for(size_t s = 0; s < samples; s++) {
 
-                Spectrum p = trace_pixel(i, j);
-                if(p.valid()) {
-                    sample.at(i, j) += p;
+                RT_Result ret = trace_pixel(i, j);
+                if(ret.p.valid()) {
+                    //printf("%f\n",ret.lamda);
+                    sample.at(i, j).addValueAtLambda(ret.lamda, ret.p.luma());
+                    //sample.at(i, j) += p;
                     sampled++;
                 }
 

@@ -99,6 +99,8 @@ set(SOURCES_CARDINAL3D_LIB
                     "src/lib/quat.h"
                     "src/lib/ray.h"
                     "src/lib/spectrum.h"
+                    "src/lib/newspectrum.h"
+                    "src/lib/newspectrum.cpp"
                     "src/lib/vec2.h"
                     "src/lib/vec3.h"
                     "src/lib/vec4.h")
