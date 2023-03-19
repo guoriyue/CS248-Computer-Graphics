@@ -204,9 +204,10 @@ void Pathtracer::do_trace(size_t samples) {
             for(size_t s = 0; s < samples; s++) {
 
                 RT_Result ret = trace_pixel(i, j);
-                if(ret.p.valid()) {
+                //if(ret.p.valid()) {
+                if(!(std::isinf(ret.p)||std::isnan(ret.p))) {
                     //printf("%f\n",ret.lamda);
-                    sample.at(i, j).addValueAtLambda(ret.lamda, ret.p.luma());
+                    sample.at(i, j).addValueAtLambda(ret.lamda, ret.p);
                     //sample.at(i, j) += p;
                     sampled++;
                 }

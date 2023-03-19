@@ -72,7 +72,7 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
     if (RNG::coin_flip(0.0005f)) {
         log_ray(out, 10.0f);
     }
-    Spectrum p = trace_ray(out);
+    float p = trace_ray(out);
     RT_Result ret;
     ret.lamda = out.lamda;
     ret.p = p;
@@ -81,12 +81,12 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
 
 }
 
-Spectrum Pathtracer::trace_ray(const Ray& ray) {
+float Pathtracer::trace_ray(const Ray& ray) {
     // Trace ray into scene. If nothing is hit, sample the environment
     Trace hit = scene.hit(ray);
     if(!hit.hit) {
         if(env_light.has_value()) {
-            return env_light.value().sample_direction(ray.dir);
+            return Old2NewSpectrum(env_light.value().sample_direction(ray.dir)).sampleAtLambda(ray.lamda);
         }
         return {};
     }
@@ -105,7 +105,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     Vec3 out_dir = world_to_object.rotate(ray.point - hit.position).unit();
 
     // Debugging: if the normal colors flag is set, return the normal color
-    if(debug_data.normal_colors) return Spectrum::direction(hit.normal);
+    if(debug_data.normal_colors) return Old2NewSpectrum(Spectrum::direction(hit.normal)).sampleAtLambda(ray.lamda);
 
     // Now we can compute the rendering equation at this point.
     // We split it into two stages:
@@ -117,7 +117,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // The starter code sets radiance_out to (0.25,0.25,0.25) so that you can test your geometry
     // queries before you implement real lighting in Tasks 4 and 5. (i.e, anything that gets hit is not black.)
     // You should change this to (0,0,0) and accumulate the direct and indirect lighting computed below.
-    Spectrum radiance_out = Spectrum(0.0f);
+    float radiance_out = 0.0f;
     {
 
         // lambda function to sample a light. Called in loop below.
@@ -161,7 +161,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
                 // Note: that along with the typical cos_theta, pdf factors, we divide by samples.
                 // This is because we're doing another monte-carlo estimate of the lighting from
                 // area lights here.
-                radiance_out += (cos_theta / (samples * sample.pdf)) * sample.radiance * attenuation;
+                radiance_out += (cos_theta / (samples * sample.pdf)) * Old2NewSpectrum(sample.radiance).sampleAtLambda(ray.lamda) * Old2NewSpectrum(attenuation).sampleAtLambda(ray.lamda);
             }
         };
 
@@ -195,10 +195,10 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
 
-    float lambda_pdf = 1 /2.0f;
+    float lambda_pdf = 1 /2.5f;
     Vec3 newDir = bsdf_sample.direction;
     float beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / (bsdf_sample.pdf*lambda_pdf));
-    Spectrum recursive_ray_throughtput = beta * ray.throughput;
+    float recursive_ray_throughtput = beta * ray.throughput;
     // follow the sudo code on slide 58 from the "Global illumination" class
 
     float q = 1 - fmax(0, fmin(beta, 1));
@@ -219,11 +219,11 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     scene_space_ray.depth = ray.depth + 1;
     scene_space_ray.dist_bounds = Vec2(EPS_F, std::numeric_limits<float>::infinity());
 
-    Spectrum result = trace_ray(scene_space_ray);
+    float result = trace_ray(scene_space_ray);
 
     // (5) Add contribution due to incoming light with proper weighting. Remember to add in
     // the BSDF sample emissive term.
-    radiance_out = radiance_out + result * beta + bsdf_sample.emissive;
+    radiance_out = radiance_out + result * beta + Old2NewSpectrum(bsdf_sample.emissive).sampleAtLambda(ray.lamda);
     return radiance_out;
 }
 

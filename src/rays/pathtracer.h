@@ -22,7 +22,7 @@ class Widget_Render;
 namespace PT {
 
 struct RT_Result {
-    Spectrum p;
+    float p;
     float lamda;
 };
 
@@ -64,7 +64,7 @@ private:
 
     /// Relevant to student
     RT_Result trace_pixel(size_t x, size_t y);
-    Spectrum trace_ray(const Ray& ray);
+    float trace_ray(const Ray& ray);
     void log_ray(const Ray& ray, float t, Spectrum color = Spectrum{1.0f});
 
     BVH<Object> scene;

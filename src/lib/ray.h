@@ -41,7 +41,7 @@ struct Ray {
     /// The direction the ray travels in
     Vec3 dir;
     /// Total attenuation new light will be scaled by to get to the source of this ray
-    Spectrum throughput = Spectrum(1.0f);
+    float throughput = 1.0f;
     /// Recursive depth of ray
     size_t depth = 0;
     float lamda;
