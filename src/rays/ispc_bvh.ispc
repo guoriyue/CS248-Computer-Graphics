@@ -1,4 +1,4 @@
-#define SIMD_WIDTH 4
+#define SIMD_WIDTH 8
 // can't use class in ISPC
 // will get Error: syntax error, unexpected identifier.
 

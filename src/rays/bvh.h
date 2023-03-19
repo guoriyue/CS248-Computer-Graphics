@@ -37,6 +37,9 @@ public:
     void bucket_split(size_t idx, size_t& rangel, size_t& ranger, BBox& split_leftBox, BBox& split_rightBox);
     Trace hit_queue4(const Ray& ray) const;
 
+    void SAH8(size_t idx, size_t max_leaf_size);
+    Trace hit_queue8(const Ray& ray) const;
+
 private:
     class Node {
         BBox bbox;
@@ -59,7 +62,20 @@ private:
     };
     size_t new_node4(BBox box = {}, size_t start = 0, size_t size = 0);
 
-    std::vector<Node4> nodes;
+    // std::vector<Node4> nodes;
+
+
+    class Node8 {
+        BBox bbox;
+        size_t start, size;
+        size_t child[8];
+
+        bool is_leaf8() const;
+        friend class BVH<Primitive>;
+    };
+    size_t new_node8(BBox box = {}, size_t start = 0, size_t size = 0);
+
+    std::vector<Node8> nodes;
 
     std::vector<Primitive> primitives;
     size_t root_idx = 0;

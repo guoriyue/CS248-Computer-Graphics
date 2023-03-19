@@ -4,7 +4,7 @@
 #include <stack>
 
 #include "../rays/ispc_bvh.h"
-
+#define SIMD_WIDTH 4
 namespace PT {
 
 // construct BVH hierarchy given a vector of prims
@@ -121,15 +121,22 @@ void BVH<Primitive>::build(std::vector<Primitive>&& prims, size_t max_leaf_size)
         bb.enclose(primitives[i].bbox());
     }
     // return 0, should be the index of the root node
-    size_t root_node_addr = new_node4();
-    Node4& node = nodes[root_node_addr];
+    // size_t root_node_addr = new_node4();
+    // Node4& node = nodes[root_node_addr];
+    size_t root_node_addr = new_node8();
+    Node8& node = nodes[root_node_addr];
+    // size_t root_node_addr = new_node();
+    // Node& node = nodes[root_node_addr];
+    
     node.bbox = bb;
     node.start = 0;
     node.size = primitives.size();
     
     // SAH(root_node_addr, max_leaf_size);
 
-    SAH4(root_node_addr, max_leaf_size);
+    // SAH4(root_node_addr, max_leaf_size);
+    SAH8(root_node_addr, max_leaf_size);
+    printf("SAH8 done\n");
 }
 
 template<typename Primitive>
@@ -262,8 +269,47 @@ Trace BVH<Primitive>::hit(const Ray& ray) const {
     // return ret;
     // return find_hit(ray, 0);
 
-    return hit_queue4(ray);
 
+    // Trace ret;
+    // std::stack<size_t> node_stack;
+    // node_stack.push(root_idx);
+
+    // while(!node_stack.empty()) {
+    //     auto node_idx = node_stack.top();
+    //     node_stack.pop();
+    //     auto& node = nodes[node_idx];
+
+    //     Vec2 times0{};
+    //     auto hit0 = node.bbox.hit(ray, times0);
+    //     if(!hit0 || (ret.hit && ret.distance <= times0.x)) continue;
+
+    //     if(node.is_leaf()) {
+    //         auto node_end = node.start + node.size;
+    //         for(auto i = node.start; i < node_end; ++i) {
+    //             Trace hit = primitives[i].hit(ray);
+    //             ret = Trace::min(ret, hit);
+    //         }
+    //     } else {
+    //         Vec2 times1, times2;
+    //         auto hit1 = nodes[node.l].bbox.hit(ray, times1);
+    //         auto hit2 = nodes[node.r].bbox.hit(ray, times2);
+
+    //         if(hit1 && hit2) {
+    //             auto first = times1.x < times2.x ? node.l : node.r;
+    //             auto second = times1.x < times2.x ? node.r : node.l;
+    //             node_stack.push(first);
+    //             node_stack.push(second);
+    //         } else if(hit1) {
+    //             node_stack.push(node.l);
+    //         } else if(hit2) {
+    //             node_stack.push(node.r);
+    //         }
+    //     }
+    // }
+    // return ret;
+
+    // return hit_queue4(ray);
+    return hit_queue8(ray);
 
     // queue for traversal
     // auto ispc_Vec3 = [](const Vec3& v) {
@@ -566,78 +612,68 @@ void BVH<Primitive>::clear() {
 // }
 
 
-// another visualize function for node4
+// // another visualize function for node4
 
-template<typename Primitive>
-size_t BVH<Primitive>::visualize(GL::Lines& lines, GL::Lines& active, size_t level,
-                                 const Mat4& trans) const {
+// template<typename Primitive>
+// size_t BVH<Primitive>::visualize(GL::Lines& lines, GL::Lines& active, size_t level,
+//                                  const Mat4& trans) const {
 
-    std::stack<std::pair<size_t, size_t>> tstack;
-    tstack.push({root_idx, 0});
-    size_t max_level = 0;
+//     std::stack<std::pair<size_t, size_t>> tstack;
+//     tstack.push({root_idx, 0});
+//     size_t max_level = 0;
 
-    if(nodes.empty()) return max_level;
+//     if(nodes.empty()) return max_level;
 
-    while(!tstack.empty()) {
+//     while(!tstack.empty()) {
 
-        auto [idx, lvl] = tstack.top();
-        max_level = std::max(max_level, lvl);
-        const Node4& node = nodes[idx];
-        tstack.pop();
+//         auto [idx, lvl] = tstack.top();
+//         max_level = std::max(max_level, lvl);
+//         const Node4& node = nodes[idx];
+//         tstack.pop();
 
-        Vec3 color = lvl == level ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(1.0f);
-        GL::Lines& add = lvl == level ? active : lines;
+//         Vec3 color = lvl == level ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(1.0f);
+//         GL::Lines& add = lvl == level ? active : lines;
 
-        BBox box = node.bbox;
-        box.transform(trans);
-        Vec3 min = box.min, max = box.max;
+//         BBox box = node.bbox;
+//         box.transform(trans);
+//         Vec3 min = box.min, max = box.max;
 
-        auto edge = [&](Vec3 a, Vec3 b) { add.add(a, b, color); };
+//         auto edge = [&](Vec3 a, Vec3 b) { add.add(a, b, color); };
 
-        edge(min, Vec3{max.x, min.y, min.z});
-        edge(min, Vec3{min.x, max.y, min.z});
-        edge(min, Vec3{min.x, min.y, max.z});
-        edge(max, Vec3{min.x, max.y, max.z});
-        edge(max, Vec3{max.x, min.y, max.z});
-        edge(max, Vec3{max.x, max.y, min.z});
-        edge(Vec3{min.x, max.y, min.z}, Vec3{max.x, max.y, min.z});
-        edge(Vec3{min.x, max.y, min.z}, Vec3{min.x, max.y, max.z});
-        edge(Vec3{min.x, min.y, max.z}, Vec3{max.x, min.y, max.z});
-        edge(Vec3{min.x, min.y, max.z}, Vec3{min.x, max.y, max.z});
-        edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, max.y, min.z});
-        edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, min.y, max.z});
+//         edge(min, Vec3{max.x, min.y, min.z});
+//         edge(min, Vec3{min.x, max.y, min.z});
+//         edge(min, Vec3{min.x, min.y, max.z});
+//         edge(max, Vec3{min.x, max.y, max.z});
+//         edge(max, Vec3{max.x, min.y, max.z});
+//         edge(max, Vec3{max.x, max.y, min.z});
+//         edge(Vec3{min.x, max.y, min.z}, Vec3{max.x, max.y, min.z});
+//         edge(Vec3{min.x, max.y, min.z}, Vec3{min.x, max.y, max.z});
+//         edge(Vec3{min.x, min.y, max.z}, Vec3{max.x, min.y, max.z});
+//         edge(Vec3{min.x, min.y, max.z}, Vec3{min.x, max.y, max.z});
+//         edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, max.y, min.z});
+//         edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, min.y, max.z});
 
-        if((node.child[0] && (!node.child[1] && !node.child[2] && !node.child[3]))
-        || (node.child[1] && (!node.child[0] && !node.child[2] && !node.child[3]))
-        || (node.child[2] && (!node.child[0] && !node.child[1] && !node.child[3]))
-        || (node.child[3] && (!node.child[0] && !node.child[1] && !node.child[2]))) {
-            // std::cout << "Error: Node4 has only one child" << std::endl;
-            for(size_t i = node.start; i < node.start + node.size; i++) {
-                size_t c = primitives[i].visualize(lines, active, level - lvl, trans);
-                max_level = std::max(c, max_level);
-            }
-        }
-        else
-        {
-            for(size_t i = 0; i < 4; i++) {
-                if(node.child[i]) {
-                    tstack.push({node.child[i], lvl + 1});
-                }
-            }
-        }
-
-        // if(node.l && node.r) {
-        //     tstack.push({node.l, lvl + 1});
-        //     tstack.push({node.r, lvl + 1});
-        // } else {
-        //     for(size_t i = node.start; i < node.start + node.size; i++) {
-        //         size_t c = primitives[i].visualize(lines, active, level - lvl, trans);
-        //         max_level = std::max(c, max_level);
-        //     }
-        // }
-    }
-    return max_level;
-}
+//         if((node.child[0] && (!node.child[1] && !node.child[2] && !node.child[3]))
+//         || (node.child[1] && (!node.child[0] && !node.child[2] && !node.child[3]))
+//         || (node.child[2] && (!node.child[0] && !node.child[1] && !node.child[3]))
+//         || (node.child[3] && (!node.child[0] && !node.child[1] && !node.child[2]))) {
+//             // std::cout << "Error: Node4 has only one child" << std::endl;
+//             for(size_t i = node.start; i < node.start + node.size; i++) {
+//                 size_t c = primitives[i].visualize(lines, active, level - lvl, trans);
+//                 max_level = std::max(c, max_level);
+//             }
+//         }
+//         else
+//         {
+//             for(size_t i = 0; i < SIMD_WIDTH; i++) {
+//                 if(node.child[i]) {
+//                     tstack.push({node.child[i], lvl + 1});
+//                 }
+//             }
+//         }
+//     }
+//     return max_level;
+// }
 
 
 template<typename Primitive>
@@ -714,14 +750,6 @@ Trace BVH<Primitive>::hit_queue4(const Ray& ray) const {
     // }
     // return ret;
 
-
-
-
-
-
-
-
-
     auto ispc_Vec3 = [](const Vec3& v) {
 		ispc::Vec3 res;
 		res.x = v.x; res.y = v.y; res.z = v.z;
@@ -752,28 +780,28 @@ Trace BVH<Primitive>::hit_queue4(const Ray& ray) const {
                 ret = Trace::min(ret, hit);
             }
         } else {
-            ispc::Vec2 *ispc_times = new ispc::Vec2[4];
+            ispc::Vec2 *ispc_times = new ispc::Vec2[SIMD_WIDTH];
             ispc::Ray ispc_ray;
             ispc_ray.point = ispc_Vec3(ray.point);
             ispc_ray.dir = ispc_Vec3(ray.dir);
 
-            ispc::BBox *ispc_bbox = new ispc::BBox[4];
+            ispc::BBox *ispc_bbox = new ispc::BBox[SIMD_WIDTH];
 
-            for(int i = 0; i < 4; ++i) {
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
                 ispc_bbox[i].min = ispc_Vec3(nodes[node.child[i]].bbox.min);
                 ispc_bbox[i].max = ispc_Vec3(nodes[node.child[i]].bbox.max);
             }
             
-            bool* ispc_hits = new bool[4];
+            bool* ispc_hits = new bool[SIMD_WIDTH];
             ispc::bbox_hit(ispc_ray, ispc_bbox, ispc_times, ispc_hits);
 
-            Vec2 *times = new Vec2[4];
-            for(int i = 0; i < 4; ++i) {
+            Vec2 *times = new Vec2[SIMD_WIDTH];
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
                 times[i].x = ispc_times[i].x;
                 times[i].y = ispc_times[i].y;
             }
 
-            for(int i = 0; i < 4; ++i) {
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
                 if(ispc_hits[i]) {
                     node_stack.push(node.child[i]);
                 }
@@ -816,7 +844,7 @@ void BVH<Primitive>::SAH4(size_t idx, size_t max_leaf_size) {
         return;
     }
     // Create bounding boxes for children
-    BBox *split_bbox = new BBox[4];
+    BBox *split_bbox = new BBox[SIMD_WIDTH];
     
     size_t rangel = 0;
     size_t ranger = 0;
@@ -872,6 +900,374 @@ void BVH<Primitive>::SAH4(size_t idx, size_t max_leaf_size) {
     SAH4(node_addr_l, max_leaf_size);
     SAH4(node_addr_r, max_leaf_size);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// visualize function for node8
+
+template<typename Primitive>
+size_t BVH<Primitive>::visualize(GL::Lines& lines, GL::Lines& active, size_t level,
+                                 const Mat4& trans) const {
+
+    std::stack<std::pair<size_t, size_t>> tstack;
+    tstack.push({root_idx, 0});
+    size_t max_level = 0;
+
+    if(nodes.empty()) return max_level;
+
+    while(!tstack.empty()) {
+
+        auto [idx, lvl] = tstack.top();
+        max_level = std::max(max_level, lvl);
+        const Node8& node = nodes[idx];
+        tstack.pop();
+
+        Vec3 color = lvl == level ? Vec3(1.0f, 0.0f, 0.0f) : Vec3(1.0f);
+        GL::Lines& add = lvl == level ? active : lines;
+
+        BBox box = node.bbox;
+        box.transform(trans);
+        Vec3 min = box.min, max = box.max;
+
+        auto edge = [&](Vec3 a, Vec3 b) { add.add(a, b, color); };
+
+        edge(min, Vec3{max.x, min.y, min.z});
+        edge(min, Vec3{min.x, max.y, min.z});
+        edge(min, Vec3{min.x, min.y, max.z});
+        edge(max, Vec3{min.x, max.y, max.z});
+        edge(max, Vec3{max.x, min.y, max.z});
+        edge(max, Vec3{max.x, max.y, min.z});
+        edge(Vec3{min.x, max.y, min.z}, Vec3{max.x, max.y, min.z});
+        edge(Vec3{min.x, max.y, min.z}, Vec3{min.x, max.y, max.z});
+        edge(Vec3{min.x, min.y, max.z}, Vec3{max.x, min.y, max.z});
+        edge(Vec3{min.x, min.y, max.z}, Vec3{min.x, max.y, max.z});
+        edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, max.y, min.z});
+        edge(Vec3{max.x, min.y, min.z}, Vec3{max.x, min.y, max.z});
+
+        // if((node.child[0] && (!node.child[1] && !node.child[2] && !node.child[3]))
+        // || (node.child[1] && (!node.child[0] && !node.child[2] && !node.child[3]))
+        // || (node.child[2] && (!node.child[0] && !node.child[1] && !node.child[3]))
+        // || (node.child[3] && (!node.child[0] && !node.child[1] && !node.child[2]))) {
+        //     // std::cout << "Error: Node4 has only one child" << std::endl;
+        //     for(size_t i = node.start; i < node.start + node.size; i++) {
+        //         size_t c = primitives[i].visualize(lines, active, level - lvl, trans);
+        //         max_level = std::max(c, max_level);
+        //     }
+        // }
+        // else
+        // {
+        //     for(size_t i = 0; i < SIMD_WIDTH; i++) {
+        //         if(node.child[i]) {
+        //             tstack.push({node.child[i], lvl + 1});
+        //         }
+        //     }
+        // }
+    }
+    return max_level;
+}
+
+
+template<typename Primitive>
+bool BVH<Primitive>::Node8::is_leaf8() const {
+    return child[0] == child[1] && child[1] == child[2] && child[2] == child[3] && child[3] == child[4] && child[4] == child[5] && child[5] == child[6] && child[6] == child[7];
+}
+
+template<typename Primitive>
+size_t BVH<Primitive>::new_node8(BBox box, size_t start, size_t size) {
+    Node8 n;
+    n.bbox = box;
+    n.start = start;
+    n.size = size;
+    for(size_t i = 0; i < SIMD_WIDTH; i++) {
+        n.child[i] = 0;
+    }
+    nodes.push_back(n);
+    return nodes.size() - 1;
+}
+
+
+
+template<typename Primitive>
+Trace BVH<Primitive>::hit_queue8(const Ray& ray) const {
+    // Trace ret;
+    // std::stack<size_t> node_stack;
+    // node_stack.push(0);
+    // while(!node_stack.empty()) {
+    //     size_t node_idx = node_stack.top();
+    //     node_stack.pop();
+    //     const Node4& node = nodes[node_idx];
+
+    //     // with early return
+    //     Vec2 times0{};
+    //     bool hit0 = node.bbox.hit(ray, times0);
+    //     if(!hit0 || (ret.hit && ret.distance <= times0.x))
+    //     {
+    //         continue;
+    //     }
+        
+    //     if(node.is_leaf4()) {
+    //         size_t node_end = node.start + node.size;
+    //         for(size_t i = node.start; i < node_end; ++i) {
+    //             // printf("hit leaf node\n");
+    //             Trace hit = primitives[i].hit(ray);
+    //             ret = Trace::min(ret, hit);
+    //         }
+    //     } else {
+    //         Vec2 *times = new Vec2[4];
+    //         bool *hit = new bool[4];
+    //         for(int i = 0; i < 4; ++i) {
+    //             hit[i] = nodes[node.child[i]].bbox.hit(ray, times[i]);
+    //             if(hit[i]) {
+    //                 node_stack.push(node.child[i]);
+    //             }
+    //         }
+    //         // Vec2 times1, times2, times3, times4;
+    //         // bool hit1 = nodes[node.l].bbox.hit(ray, times1);
+    //         // bool hit2 = nodes[node.r].bbox.hit(ray, times2);
+    //         // bool hit3 = nodes[node.l].bbox.hit(ray, times3);
+    //         // bool hit4 = nodes[node.r].bbox.hit(ray, times4);
+    //         // if(hit1 && hit2) {
+    //         //     size_t first = times1.x < times2.x ? node.l : node.r;
+    //         //     size_t second = times1.x < times2.x ? node.r : node.l;
+    //         //     node_stack.push(first);
+    //         //     node_stack.push(second);
+    //         // } else if(hit1) {
+    //         //     node_stack.push(node.l);
+    //         // } else if(hit2) {
+    //         //     node_stack.push(node.r);
+    //         // }
+    //     }
+    // }
+    // return ret;
+
+    auto ispc_Vec3 = [](const Vec3& v) {
+		ispc::Vec3 res;
+		res.x = v.x; res.y = v.y; res.z = v.z;
+		return res;
+	};
+
+    Trace ret;
+    std::stack<size_t> node_stack;
+    node_stack.push(0);
+    while(!node_stack.empty()) {
+        size_t node_idx = node_stack.top();
+        node_stack.pop();
+        const Node8& node = nodes[node_idx];
+
+        // with early return
+        Vec2 times0{};
+        bool hit0 = node.bbox.hit(ray, times0);
+        if(!hit0 || (ret.hit && ret.distance <= times0.x))
+        {
+            continue;
+        }
+        
+        if(node.is_leaf8()) {
+            size_t node_end = node.start + node.size;
+            for(size_t i = node.start; i < node_end; ++i) {
+                // printf("hit leaf node\n");
+                Trace hit = primitives[i].hit(ray);
+                ret = Trace::min(ret, hit);
+            }
+        } else {
+            ispc::Vec2 *ispc_times = new ispc::Vec2[SIMD_WIDTH];
+            ispc::Ray ispc_ray;
+            ispc_ray.point = ispc_Vec3(ray.point);
+            ispc_ray.dir = ispc_Vec3(ray.dir);
+
+            ispc::BBox *ispc_bbox = new ispc::BBox[SIMD_WIDTH];
+
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
+                ispc_bbox[i].min = ispc_Vec3(nodes[node.child[i]].bbox.min);
+                ispc_bbox[i].max = ispc_Vec3(nodes[node.child[i]].bbox.max);
+            }
+            
+            bool* ispc_hits = new bool[SIMD_WIDTH];
+            ispc::bbox_hit(ispc_ray, ispc_bbox, ispc_times, ispc_hits);
+
+            Vec2 *times = new Vec2[SIMD_WIDTH];
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
+                times[i].x = ispc_times[i].x;
+                times[i].y = ispc_times[i].y;
+            }
+
+            for(int i = 0; i < SIMD_WIDTH; ++i) {
+                if(ispc_hits[i]) {
+                    node_stack.push(node.child[i]);
+                }
+            }
+            free(ispc_times);
+            free(ispc_bbox);
+            free(ispc_hits);
+            free(times);
+        }
+    }
+    return ret;
+
+
+    // ispc::Ray ispc_ray;
+    // ispc_ray.point = ispc_Vec3(ray.point);
+    // ispc_ray.dir = ispc_Vec3(ray.dir);
+    // ispc::Node* ispc_nodes = new ispc::Node[nodes.size()];
+    // for(int i = 0; i < nodes.size(); i++) {
+    //     ispc_nodes[i].bbox.min = ispc_Vec3(nodes[i].bbox.min);
+    //     ispc_nodes[i].bbox.max = ispc_Vec3(nodes[i].bbox.max);
+    //     ispc_nodes[i].start = nodes[i].start;
+    //     ispc_nodes[i].size = nodes[i].size;
+    //     ispc_nodes[i].l = nodes[i].l;
+    //     ispc_nodes[i].r = nodes[i].r;
+    // }
+    // ispc::Trace ispc_ret;
+
+    // ispc::find_hit(ispc_ray, 0, ispc_nodes, ispc_ret);
+
+    // Trace ret;
+    // ret.hit = ispc_ret.hit;
+    // ret.distance = ispc_ret.distance;
+    // ret.position = Vec3(ispc_ret.position.x, ispc_ret.position.y, ispc_ret.position.z);
+    // ret.normal = Vec3(ispc_ret.normal.x, ispc_ret.normal.y, ispc_ret.normal.z);
+    // ret.origin = Vec3(ispc_ret.origin.x, ispc_ret.origin.y, ispc_ret.origin.z);
+    // ret.material = ispc_ret.material;
+    // return ret;
+}
+
+
+template<typename Primitive>
+void BVH<Primitive>::SAH8(size_t idx, size_t max_leaf_size) {
+    if (nodes[idx].size <= max_leaf_size) {
+        return;
+    }
+    // Create bounding boxes for children
+    BBox *split_bbox = new BBox[SIMD_WIDTH];
+    size_t *rangel = new size_t[SIMD_WIDTH];
+    size_t *ranger = new size_t[SIMD_WIDTH];
+    size_t *node_addr = new size_t[SIMD_WIDTH];
+    size_t *startl = new size_t[SIMD_WIDTH];
+    size_t *startr = new size_t[SIMD_WIDTH];
+    bucket_split(idx, rangel[0], ranger[0], split_bbox[0], split_bbox[1]);
+
+    startl[0] = nodes[idx].start;
+    startr[0] = startl[0] + rangel[0];
+
+    node_addr[0] = new_node8();
+    node_addr[1] = new_node8();
+    for(int i = 0; i < 2; ++i) {
+        nodes[node_addr[i]].bbox = split_bbox[i];
+        nodes[node_addr[i]].start = startl[int(floor(i/2))];
+        nodes[node_addr[i]].size = rangel[int(floor(i/2))];
+    }
+    // nodes[node_addr[0]].bbox = split_bbox[0];
+    // nodes[node_addr[0]].start = startl[0];
+    // nodes[node_addr[0]].size = rangel[0];
+    // nodes[node_addr[1]].bbox = split_bbox[1];
+    // nodes[node_addr[1]].start = startr[0];
+    // nodes[node_addr[1]].size = ranger[0];
+    
+
+    // // create twp temp child nodes
+    // size_t node_addr_temp_l = new_node8();
+    // size_t node_addr_temp_r = new_node8();
+
+    // size_t startl = nodes[idx].start;
+    // size_t startr = startl + rangel;
+    // nodes[node_addr_temp_l].bbox = split_bbox[0];
+    // nodes[node_addr_temp_l].start = startl;
+    // nodes[node_addr_temp_l].size = rangel;
+
+    // nodes[node_addr_temp_r].bbox = split_bbox[1];
+    // nodes[node_addr_temp_r].start = startr;
+    // nodes[node_addr_temp_r].size = ranger;
+
+    bucket_split(node_addr[0], rangel[0], ranger[0], split_bbox[0], split_bbox[1]);
+    bucket_split(node_addr[1], rangel[1], ranger[1], split_bbox[2], split_bbox[3]);
+    for(int i = 0; i < 2; ++i) {
+        startl[i] = nodes[node_addr[i]].start;
+        startr[i] = startl[i] + rangel[i];
+    }
+    node_addr[2] = new_node8();
+    node_addr[3] = new_node8();
+    for(int i = 0; i < 4; ++i) {
+        nodes[node_addr[i]].bbox = split_bbox[i];
+        nodes[node_addr[i]].start = startl[int(floor(i/2))];
+        nodes[node_addr[i]].size = rangel[int(floor(i/2))];
+    }
+
+    bucket_split(node_addr[0], rangel[0], ranger[0], split_bbox[0], split_bbox[1]);
+    bucket_split(node_addr[1], rangel[1], ranger[1], split_bbox[2], split_bbox[3]);
+    bucket_split(node_addr[2], rangel[2], ranger[2], split_bbox[4], split_bbox[5]);
+    bucket_split(node_addr[3], rangel[3], ranger[3], split_bbox[6], split_bbox[7]);
+    for(int i = 0; i < 4; ++i) {
+        startl[i] = nodes[node_addr[i]].start;
+        startr[i] = startl[i] + rangel[i];
+    }
+
+    node_addr[4] = new_node8();
+    node_addr[5] = new_node8();
+    node_addr[6] = new_node8();
+    node_addr[7] = new_node8();
+    for(int i = 0; i < 8; ++i) {
+        nodes[node_addr[i]].bbox = split_bbox[i];
+        nodes[node_addr[i]].start = startl[int(floor(i/2))];
+        nodes[node_addr[i]].size = rangel[int(floor(i/2))];
+        SAH8(node_addr[i], max_leaf_size);
+    }
+    free(node_addr);
+    free(startl);
+    free(startr);
+    free(rangel);
+    free(ranger);
+    free(split_bbox);
+
+
+
+    // size_t rangel_temp_l = 0;
+    // size_t ranger_temp_l = 0;
+    // size_t rangel_temp_r = 0;
+    // size_t ranger_temp_r = 0;
+    // bucket_split(node_addr_temp_l, rangel_temp_l, ranger_temp_l, split_bbox[0], split_bbox[1]);
+    // size_t startl_temp_l = nodes[node_addr_temp_l].start;
+    // size_t startr_temp_l = startl_temp_l + rangel_temp_l;
+
+    // bucket_split(node_addr_temp_r, rangel_temp_r, ranger_temp_r, split_bbox[2], split_bbox[3]);
+    // size_t startl_temp_r = nodes[node_addr_temp_r].start;
+    // size_t startr_temp_r = startl_temp_r + rangel_temp_r;
+    // // temp child nodes
+    // size_t node_addr_l = new_node8();
+    // size_t node_addr_r = new_node8();
+
+    // nodes[node_addr_temp_l].bbox = split_bbox[0];
+    // nodes[node_addr_temp_r].bbox = split_bbox[1];
+    // nodes[node_addr_l].bbox = split_bbox[2];
+    // nodes[node_addr_r].bbox = split_bbox[3];
+
+    // nodes[node_addr_temp_l].start = startl_temp_l;
+    // nodes[node_addr_temp_l].size = rangel_temp_l;
+    // nodes[node_addr_temp_r].start = startr_temp_l;
+    // nodes[node_addr_temp_r].size = ranger_temp_l;
+
+    // nodes[node_addr_l].start = startl_temp_r;
+    // nodes[node_addr_l].size = rangel_temp_r;
+    // nodes[node_addr_r].start = startr_temp_r;
+    // nodes[node_addr_r].size = ranger_temp_r;
+
+
+    // SAH8(node_addr_temp_l, max_leaf_size);
+    // SAH8(node_addr_temp_r, max_leaf_size);
+    // SAH8(node_addr_l, max_leaf_size);
+    // SAH8(node_addr_r, max_leaf_size);
+}
+
 
 
 template<typename Primitive>
