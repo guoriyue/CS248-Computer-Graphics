@@ -69,13 +69,13 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
     // As an example, the code below generates a ray through the bottom left of the
     // specified pixel
     Ray out = camera.generate_ray(xy / wh);
-    if (RNG::coin_flip(0.0005f)) {
-        log_ray(out, 10.0f);
-    }
+    // if (RNG::coin_flip(0.0005f)) {
+    //     log_ray(out, 10.0f);
+    // }
     float p = trace_ray(out);
     RT_Result ret;
     ret.lamda = out.lamda;
-    ret.p = p;
+    ret.p = p*30;
     return ret;
 
 
@@ -195,7 +195,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
 
-    float lambda_pdf = 1 /2.5f;
+    float lambda_pdf = 1 /1.0f;
     Vec3 newDir = bsdf_sample.direction;
     float beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / (bsdf_sample.pdf*lambda_pdf));
     float recursive_ray_throughtput = beta * ray.throughput;
