@@ -2,6 +2,7 @@
 #include "../rays/pathtracer.h"
 #include "../rays/samplers.h"
 #include "../util/rand.h"
+#include "../lib/newspectrum.h"
 #include "debug.h"
 
 namespace PT {
@@ -9,7 +10,7 @@ namespace PT {
 // Return the radiance along a ray entering the camera and landing on a
 // point within pixel (x,y) of the output image.
 //
-Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
+RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
 
     Vec2 xy((float)x, (float)y);
     Vec2 wh((float)out_w, (float)out_h);
@@ -71,17 +72,23 @@ Spectrum Pathtracer::trace_pixel(size_t x, size_t y) {
     // if (RNG::coin_flip(0.0005f)) {
     //     log_ray(out, 10.0f);
     // }
-    return trace_ray(out);
+    float p = trace_ray(out);
+    //return both ray wavelength and intensity to do_trace function 
+    RT_Result ret;
+    ret.lambda = out.lambda;
+    ret.p = p*2.5;
+    return ret;
 
 
 }
-
-Spectrum Pathtracer::trace_ray(const Ray& ray) {
+// Since each ray only has one wavelength, trace_ray now return a float. 
+// the number is the light intensity at that particular wavelength.
+float Pathtracer::trace_ray(const Ray& ray) {
     // Trace ray into scene. If nothing is hit, sample the environment
     Trace hit = scene.hit(ray);
     if(!hit.hit) {
         if(env_light.has_value()) {
-            return env_light.value().sample_direction(ray.dir);
+            return Old2NewSpectrum(env_light.value().sample_direction(ray.dir)).sampleAtLambda(ray.lambda);
         }
         return {};
     }
@@ -100,7 +107,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     Vec3 out_dir = world_to_object.rotate(ray.point - hit.position).unit();
 
     // Debugging: if the normal colors flag is set, return the normal color
-    if(debug_data.normal_colors) return Spectrum::direction(hit.normal);
+    if(debug_data.normal_colors) return Old2NewSpectrum(Spectrum::direction(hit.normal)).sampleAtLambda(ray.lambda);
 
     // Now we can compute the rendering equation at this point.
     // We split it into two stages:
@@ -112,7 +119,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // The starter code sets radiance_out to (0.25,0.25,0.25) so that you can test your geometry
     // queries before you implement real lighting in Tasks 4 and 5. (i.e, anything that gets hit is not black.)
     // You should change this to (0,0,0) and accumulate the direct and indirect lighting computed below.
-    Spectrum radiance_out = Spectrum(0.0f);
+    float radiance_out = 0.0f;
     {
 
         // lambda function to sample a light. Called in loop below.
@@ -147,7 +154,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
                 // modify the time_bounds of your shadow ray to account for this. Using EPS_F is
                 // recommended.
 
-                Ray shadow_ray = Ray(hit.position, sample.direction);
+                Ray shadow_ray = Ray(hit.position, sample.direction, ray.lambda);
                 shadow_ray.dist_bounds = Vec2(EPS_F, sample.distance);
                 if(scene.hit(shadow_ray).hit) {
                     continue;
@@ -156,7 +163,7 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
                 // Note: that along with the typical cos_theta, pdf factors, we divide by samples.
                 // This is because we're doing another monte-carlo estimate of the lighting from
                 // area lights here.
-                radiance_out += (cos_theta / (samples * sample.pdf)) * sample.radiance * attenuation;
+                radiance_out += (cos_theta / (samples * sample.pdf)) * Old2NewSpectrum(sample.radiance).sampleAtLambda(ray.lambda) * Old2NewSpectrum(attenuation).sampleAtLambda(ray.lambda);
             }
         };
 
@@ -183,19 +190,21 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // (2) Randomly select a new ray direction (it may be reflection or transmittance
     // ray depending on surface type) using bsdf.sample()
 
-    BSDF_Sample bsdf_sample = bsdf.sample(out_dir);
+    BSDF_Sample bsdf_sample = bsdf.sample(out_dir, ray.lambda);
 
     // (3) Compute the throughput of the recursive ray. This should be the current ray's
     // throughput scaled by the BSDF attenuation, cos(theta), and BSDF sample PDF.
     // Potentially terminate the path using Russian roulette as a function of the new throughput.
     // Note that allowing the termination probability to approach 1 may cause extra speckling.
+
+    float lambda_pdf = 1 /1.0f;
     Vec3 newDir = bsdf_sample.direction;
-    Spectrum beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / bsdf_sample.pdf);
-    Spectrum recursive_ray_throughtput = beta * ray.throughput;
+    float beta = bsdf_sample.attenuation * abs(bsdf_sample.direction.y) * (1 / (bsdf_sample.pdf*lambda_pdf));
+    float recursive_ray_throughtput = beta * ray.throughput;
     // follow the sudo code on slide 58 from the "Global illumination" class
 
-    float q = 1 - fmax(0, fmin(beta.luma(), 1));
-    q = 0.5*q;
+    float q = 1 - fmax(0, fmin(beta, 1));
+    q *= 0.5;
     if(RNG::unit() < q){
         return radiance_out;
     }
@@ -207,16 +216,16 @@ Spectrum Pathtracer::trace_ray(const Ray& ray) {
     // you should modify time_bounds so that the ray does not intersect at time = 0. Remember to
     // set the new throughput and depth values.
     newDir = object_to_world.rotate(newDir);
-    Ray scene_space_ray = Ray(hit.position, newDir);
+    Ray scene_space_ray = Ray(hit.position, newDir,ray.lambda);
     scene_space_ray.throughput = recursive_ray_throughtput;
     scene_space_ray.depth = ray.depth + 1;
     scene_space_ray.dist_bounds = Vec2(EPS_F, std::numeric_limits<float>::infinity());
 
-    Spectrum result = trace_ray(scene_space_ray);
+    float result = trace_ray(scene_space_ray);
 
     // (5) Add contribution due to incoming light with proper weighting. Remember to add in
     // the BSDF sample emissive term.
-    radiance_out = radiance_out + result * beta + bsdf_sample.emissive;
+    radiance_out = radiance_out + result * beta + Old2NewSpectrum(bsdf_sample.emissive).sampleAtLambda(ray.lambda);
     return radiance_out;
 }
 

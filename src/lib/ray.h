@@ -7,14 +7,15 @@
 
 #include "../lib/mathlib.h"
 #include "../lib/spectrum.h"
+#include "../lib/newspectrum.h"
 
 struct Ray {
 
     Ray() = default;
 
     /// Create Ray from point and direction
-    explicit Ray(Vec3 point, Vec3 dir)
-        : point(point), dir(dir.unit()), dist_bounds(0.0f, std::numeric_limits<float>::max()) {
+    explicit Ray(Vec3 point, Vec3 dir, float lambda)
+        : point(point), dir(dir.unit()), lambda(lambda), dist_bounds(0.0f, std::numeric_limits<float>::max()) {
     }
 
     Ray(const Ray&) = default;
@@ -40,9 +41,10 @@ struct Ray {
     /// The direction the ray travels in
     Vec3 dir;
     /// Total attenuation new light will be scaled by to get to the source of this ray
-    Spectrum throughput = Spectrum(1.0f);
+    float throughput = 1.0f;
     /// Recursive depth of ray
     size_t depth = 0;
+    float lambda;
 
     /// The minimum and maximum distance at which this ray can encounter collisions
     /// note that this field is mutable, meaning it can be changed on const Rays

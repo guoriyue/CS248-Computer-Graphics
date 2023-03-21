@@ -4,7 +4,9 @@
 #include <vector>
 
 #include "../lib/spectrum.h"
+#include "../lib/newspectrum.h"
 #include "../platform/gl.h"
+
 
 class HDR_Image {
 public:
@@ -19,12 +21,12 @@ public:
     HDR_Image& operator=(const HDR_Image& src) = delete;
     HDR_Image& operator=(HDR_Image&& src) = default;
 
-    Spectrum& at(size_t x, size_t y);
-    Spectrum at(size_t x, size_t y) const;
-    Spectrum& at(size_t i);
-    Spectrum at(size_t i) const;
+    NewSpectrum& at(size_t x, size_t y);
+    NewSpectrum at(size_t x, size_t y) const;
+    NewSpectrum& at(size_t i);
+    NewSpectrum at(size_t i) const;
 
-    void clear(Spectrum color);
+    void clear(NewSpectrum color);
     void resize(size_t w, size_t h);
     std::pair<size_t, size_t> dimension() const;
 
@@ -39,7 +41,7 @@ private:
 
     size_t w, h;
     std::string last_path;
-    std::vector<Spectrum> pixels;
+    std::vector<NewSpectrum> pixels;
 
     mutable GL::Tex2D render_tex;
     mutable float exposure = 1.0f;
