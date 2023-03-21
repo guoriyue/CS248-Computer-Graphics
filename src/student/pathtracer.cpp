@@ -81,8 +81,8 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
 
 
 }
-// Since each ray only has one wavelength, trace_ray now return a float. 
-// the number is the light intensity at that particular wavelength.
+// Since each ray only has one wavelength, trace_ray now returns a float. 
+// The number is the light intensity at that particular wavelength.
 float Pathtracer::trace_ray(const Ray& ray) {
     // Trace ray into scene. If nothing is hit, sample the environment
     Trace hit = scene.hit(ray);

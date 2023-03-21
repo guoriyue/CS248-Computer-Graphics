@@ -114,21 +114,22 @@ BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lambda) const {
     ret.direction = Vec3();       // What direction should we sample incoming light from?
     ret.pdf = 0.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
 
-    float new_index_of_refraction;
-    float b1 = 1.03;
-    float b2 = 0.23;
-    float b3 = 1.01;
-    float c1 = 0.006;
-    float c2 = 0.02;
-    float c3 = 103.56;
-    float l = lambda;
-    new_index_of_refraction = std::sqrt(1   + b1 * pow(l,2)/ (pow(l,2) - c1) 
-                                            + b2 * pow(l,2)/ (pow(l,2) - c2) 
-                                            + b3 * pow(l,2)/ (pow(l,2) - c3));
-    // I should use Sellmeier equation to calculate index_of_refraction according to wavelength, 
-    // but just divide the wavelength lambda by 400nm to the index of refraction create better
-    // rainbow, so I keep this line.
-    new_index_of_refraction = lambda / 400.0;
+    // float new_index_of_refraction;
+    // float b1 = 1.03;
+    // float b2 = 0.23;
+    // float b3 = 1.01;
+    // float c1 = 0.006;
+    // float c2 = 0.02;
+    // float c3 = 103.56;
+    // float l = lambda;
+    // new_index_of_refraction = std::sqrt(1   + b1 * pow(l,2)/ (pow(l,2) - c1) 
+    //                                         + b2 * pow(l,2)/ (pow(l,2) - c2) 
+    //                                         + b3 * pow(l,2)/ (pow(l,2) - c3));
+
+    // I should use the Sellmeier equation to calculate index_of_refraction according to wavelength,
+    // but just dividing the wavelength lambda by 400nm as the index of refraction can create
+    // a better rainbow effect, so I keep this line.
+    float new_index_of_refraction = lambda / 400.0;
 
     //Schlick's approximation
     float R0 = pow(((1.0f - new_index_of_refraction)/(1+ new_index_of_refraction)),2);

@@ -1,8 +1,7 @@
 #include "lib/newspectrum.h"
-// lambda could be any float between 400nm and 700nm.
-// given a lambda we need to find the two nearest index and
-// do linear interpolation to split c_value and add values to
-// both left_index and right index.
+// Lambda could be any float between 400nm and 700nm.
+// Given a lambda, we need to find the two nearest indexes and do linear 
+// interpolation to split c_value and add values to both the left and right index.
 void NewSpectrum::addValueAtLambda(float lambda, float c_value) {
     int lambda_index_left = (lambda - Lambda_Start) / (Lambda_End - Lambda_Start) * nSpectrumSamples;
     int lambda_index_right = lambda_index_left + 1;
@@ -11,10 +10,9 @@ void NewSpectrum::addValueAtLambda(float lambda, float c_value) {
     c[lambda_index_left] += c_value * (1.0f - t);
     c[lambda_index_right] += c_value * t;
 }
-// lambda could be any float between 400nm and 700nm.
-// given a lambda we need to find the two nearest index and
-// do linear interpolation to split c_value and add values to
-// both left_index and right index.
+// Lambda could be any float between 400nm and 700nm.
+// Given a lambda, we need to find the two nearest indexes and do linear
+// interpolation to split c_value and add values to both left and right indexes.
 float NewSpectrum::sampleAtLambda(float lambda) {
     int lambda_index_left = (lambda - Lambda_Start) / (Lambda_End - Lambda_Start) * nSpectrumSamples;
     int lambda_index_right = lambda_index_left + 1;
@@ -31,9 +29,9 @@ Spectrum New2OldSpectrum(NewSpectrum new_spectrum) {
     Vec3 old_spectrum = new_spectrum.Convert2RGB();
     return Spectrum(old_spectrum.x, old_spectrum.y, old_spectrum.z);
 }
-// the length of RGB spectrum samples is 28, the lambda interval doesn't match our spectrum 
-// sample array. For each lambda value in the array of the NewSpectrum object, we need to find 
-// two nearest index in the lambdas array and do linear interpolation to find the intensity.
+// The length of RGB spectrum samples is 28. This lambda interval doesn't match our spectrum sample array.
+// For each lambda value in the array of the NewSpectrum object, we need to find the two nearest indices
+// in the lambda array and do linear interpolation to find the intensity.
 NewSpectrum::NewSpectrum(std::array<float, RGB2SpectrumSamples>& lambdas,
                          std::array<float, RGB2SpectrumSamples>& values) {
     for(int i = 0; i < nSpectrumSamples; ++i) {
@@ -47,11 +45,11 @@ NewSpectrum::NewSpectrum(std::array<float, RGB2SpectrumSamples>& lambdas,
     }
 }
 
-// Convert spectrum to XYZ then to RGB
+// Convert spectrum to XYZ, then to RGB
 // XYZ value can be computed by integrating the spectrum with the spectral matching curves
-// CIE_X, CIE_Y and CIE_Z.
+// CIE_X, CIE_Y, and CIE_Z.
 Vec3 NewSpectrum::Convert2RGB() {
-    //get CIE_X, CIE_Y, CIE_Z spectral matching curves from
+    //Get CIE_X, CIE_Y, CIE_Z spectral matching curves from
     //https://github.com/hughsie/colord/blob/main/data/cmf/CIE1931-2deg-XYZ.csv
     std::array<float, nCIESamples> CIE_X = {
         0.014310000000f, 0.023190000000f, 0.043510000000f, 0.077630000000f, 0.134380000000f,
@@ -94,26 +92,26 @@ Vec3 NewSpectrum::Convert2RGB() {
         0.000000000000f, 0.000000000000f, 0.000000000000f, 0.000000000000f, 0.000000000000f};
 
     Vec3 xyz;
-    // Since the lambda interval of CIE_X, CIE_Y and CIE_Z matches with
-    // the lambda interval of our spectrum sample array. The integration is
-    // very simple and we don't need to do linear interpolation.
+    // Since the lambda interval of CIE_X, CIE_Y, and CIE_Z matches the 
+    // lambda interval of our spectrum sample array. The integration is 
+    // straightforward, and we don't need linear interpolation.
     for(int i = 0; i < nSpectrumSamples; ++i) {
         float c_value = c[i];
         xyz[0] += CIE_X[i] * c_value;
         xyz[1] += CIE_Y[i] * c_value;
         xyz[2] += CIE_Z[i] * c_value;
     }
-    // XYZ To RGB. Matrix value get from
+    // XYZ To RGB. Matrix value gets from
     // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
     return Vec3(3.240479f * xyz.x - 1.537150f * xyz.y - 0.498535f * xyz.z,
                 -0.969256f * xyz.x + 1.875991f * xyz.y + 0.041556f * xyz.z,
                 0.055648f * xyz.x - 0.204043f * xyz.y + 1.057311f * xyz.z);
 }
 
-// Using Smits' method to convert RGB to spectrum
+// Using Smits' method to convert an RGB value to a spectrum
 // Smits, B. 1999. An RGB-to-spectrum conversion for reflectances. Journal of Graphics Tools 4 (4), 11–22.
 NewSpectrum Convert2Spectrum(float r, float g, float b) {
-    // all spectrum samples arrays get from 
+    // All spectrum samples arrays get from 
     // https://github.com/mmp/pbrt-v3/blob/master/src/core/spectrum.cpp
     std::array<float, RGB2SpectrumSamples> sampled_lambda = {
         401.935486, 412.903229, 423.870972, 434.838715, 445.806458, 456.774200, 467.741943,

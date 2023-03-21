@@ -21,6 +21,7 @@ class Widget_Render;
 
 namespace PT {
 
+//Now a ray tracing result has both intensity p and wavelength lambda.
 struct RT_Result {
     float p;
     float lambda;
