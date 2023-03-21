@@ -73,20 +73,22 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
     //     log_ray(out, 10.0f);
     // }
     float p = trace_ray(out);
+    //return both ray wavelength and intensity to do_trace function 
     RT_Result ret;
-    ret.lamda = out.lamda;
+    ret.lambda = out.lambda;
     ret.p = p*2.5;
     return ret;
 
 
 }
-
+// Since each ray only has one wavelength, trace_ray now return a float. 
+// the number is the light intensity at that particular wavelength.
 float Pathtracer::trace_ray(const Ray& ray) {
     // Trace ray into scene. If nothing is hit, sample the environment
     Trace hit = scene.hit(ray);
     if(!hit.hit) {
         if(env_light.has_value()) {
-            return Old2NewSpectrum(env_light.value().sample_direction(ray.dir)).sampleAtLambda(ray.lamda);
+            return Old2NewSpectrum(env_light.value().sample_direction(ray.dir)).sampleAtLambda(ray.lambda);
         }
         return {};
     }
@@ -105,7 +107,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
     Vec3 out_dir = world_to_object.rotate(ray.point - hit.position).unit();
 
     // Debugging: if the normal colors flag is set, return the normal color
-    if(debug_data.normal_colors) return Old2NewSpectrum(Spectrum::direction(hit.normal)).sampleAtLambda(ray.lamda);
+    if(debug_data.normal_colors) return Old2NewSpectrum(Spectrum::direction(hit.normal)).sampleAtLambda(ray.lambda);
 
     // Now we can compute the rendering equation at this point.
     // We split it into two stages:
@@ -152,7 +154,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
                 // modify the time_bounds of your shadow ray to account for this. Using EPS_F is
                 // recommended.
 
-                Ray shadow_ray = Ray(hit.position, sample.direction, ray.lamda);
+                Ray shadow_ray = Ray(hit.position, sample.direction, ray.lambda);
                 shadow_ray.dist_bounds = Vec2(EPS_F, sample.distance);
                 if(scene.hit(shadow_ray).hit) {
                     continue;
@@ -161,7 +163,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
                 // Note: that along with the typical cos_theta, pdf factors, we divide by samples.
                 // This is because we're doing another monte-carlo estimate of the lighting from
                 // area lights here.
-                radiance_out += (cos_theta / (samples * sample.pdf)) * Old2NewSpectrum(sample.radiance).sampleAtLambda(ray.lamda) * Old2NewSpectrum(attenuation).sampleAtLambda(ray.lamda);
+                radiance_out += (cos_theta / (samples * sample.pdf)) * Old2NewSpectrum(sample.radiance).sampleAtLambda(ray.lambda) * Old2NewSpectrum(attenuation).sampleAtLambda(ray.lambda);
             }
         };
 
@@ -188,7 +190,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
     // (2) Randomly select a new ray direction (it may be reflection or transmittance
     // ray depending on surface type) using bsdf.sample()
 
-    BSDF_Sample bsdf_sample = bsdf.sample(out_dir, ray.lamda);
+    BSDF_Sample bsdf_sample = bsdf.sample(out_dir, ray.lambda);
 
     // (3) Compute the throughput of the recursive ray. This should be the current ray's
     // throughput scaled by the BSDF attenuation, cos(theta), and BSDF sample PDF.
@@ -214,7 +216,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
     // you should modify time_bounds so that the ray does not intersect at time = 0. Remember to
     // set the new throughput and depth values.
     newDir = object_to_world.rotate(newDir);
-    Ray scene_space_ray = Ray(hit.position, newDir,ray.lamda);
+    Ray scene_space_ray = Ray(hit.position, newDir,ray.lambda);
     scene_space_ray.throughput = recursive_ray_throughtput;
     scene_space_ray.depth = ray.depth + 1;
     scene_space_ray.dist_bounds = Vec2(EPS_F, std::numeric_limits<float>::infinity());
@@ -223,7 +225,7 @@ float Pathtracer::trace_ray(const Ray& ray) {
 
     // (5) Add contribution due to incoming light with proper weighting. Remember to add in
     // the BSDF sample emissive term.
-    radiance_out = radiance_out + result * beta + Old2NewSpectrum(bsdf_sample.emissive).sampleAtLambda(ray.lamda);
+    radiance_out = radiance_out + result * beta + Old2NewSpectrum(bsdf_sample.emissive).sampleAtLambda(ray.lambda);
     return radiance_out;
 }
 

@@ -30,9 +30,13 @@ Ray Camera::generate_ray(Vec2 screen_coord) const {
     Vec3 dir = Vec3(x, y, -1.0f).unit();
     Vec3 point = Vec3(0, 0, 0);
 
+
+    // to support multi-spectral rendering, now each ray has its own wavelength lambda
+    // when camera generate a ray, the wavelength of the ray could be any float number
+    // between 400nm to 690nm. 
     float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    float lamda = 400.0f + r*(760.0f - 400.0f);
-    Ray ray(point, dir,lamda);
+    float lambda = 400.0f + r*(690.0f - 400.0f);
+    Ray ray(point, dir,lambda);
     ray.transform(iview);
 
     return ray;

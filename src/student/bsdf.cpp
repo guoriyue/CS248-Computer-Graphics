@@ -57,14 +57,14 @@ Vec3 refract(Vec3 out_dir, float index_of_refraction, bool& was_internal) {
     return refract_dir;
 }
 
-BSDF_Sample BSDF_Lambertian::sample(Vec3 out_dir, float lamda) const {
+BSDF_Sample BSDF_Lambertian::sample(Vec3 out_dir, float lambda) const {
 
     // TODO (PathTracer): Task 5
     // Implement lambertian BSDF. Use of BSDF_Lambertian::sampler may be useful
 
     BSDF_Sample ret;
     Vec3 sampled_direction = sampler.sample(ret.pdf); // What was the PDF of the sampled direction?
-    float n = Old2NewSpectrum( evaluate(out_dir, sampled_direction)).sampleAtLambda(lamda);
+    float n = Old2NewSpectrum( evaluate(out_dir, sampled_direction)).sampleAtLambda(lambda);
     ret.attenuation = n * (1.0f / PI_F);
     // ret.attenuation = evaluate(
     //     out_dir, sampled_direction); // What is the ratio of reflected/incoming light? The higher the brighter
@@ -76,14 +76,14 @@ Spectrum BSDF_Lambertian::evaluate(Vec3 out_dir, Vec3 in_dir) const {
     return albedo * (1.0f / PI_F);
 }
 
-BSDF_Sample BSDF_Mirror::sample(Vec3 out_dir,float lamda) const {
+BSDF_Sample BSDF_Mirror::sample(Vec3 out_dir,float lambda) const {
 
     // TODO (PathTracer): Task 6
     // Implement mirror BSDF
 
     BSDF_Sample ret;
     Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
-    ret.attenuation = Old2NewSpectrum(reflectance).sampleAtLambda(lamda)/ dot(out_dir, surface_normal);          // What is the ratio of reflected/incoming light?
+    ret.attenuation = Old2NewSpectrum(reflectance).sampleAtLambda(lambda)/ dot(out_dir, surface_normal);          // What is the ratio of reflected/incoming light?
     ret.direction = reflect(out_dir);       // What direction should we sample incoming light from?
     ret.pdf = 1.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
     return ret;
@@ -98,7 +98,7 @@ Spectrum BSDF_Mirror::evaluate(Vec3 out_dir, Vec3 in_dir) const {
     return {};
 }
 
-BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lamda) const {
+BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lambda) const {
 
     // TODO (PathTracer): Task 6
 
@@ -114,20 +114,22 @@ BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lamda) const {
     ret.direction = Vec3();       // What direction should we sample incoming light from?
     ret.pdf = 0.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
 
-    // float new_index_of_refraction;
-    // float b1 = 1.03;
-    // float b2 = 0.23;
-    // float b3 = 1.01;
-    // float c1 = 0.006;
-    // float c2 = 0.02;
-    // float c3 = 103.56;
-    // float l = lamda;
-    // new_index_of_refraction = std::sqrt(1 + b1 * l * l / (l * l - c1) + b2 * l * l / (l * l - c2) +
-    //                  b3 * l * l / (l * l - c3));
-    // printf("%f\n", lamda);
-    // printf("%f\n", new_index_of_refraction);
-    float new_index_of_refraction = lamda / 400.0;
-    // printf("%f\n", new_index_of_refraction);
+    float new_index_of_refraction;
+    float b1 = 1.03;
+    float b2 = 0.23;
+    float b3 = 1.01;
+    float c1 = 0.006;
+    float c2 = 0.02;
+    float c3 = 103.56;
+    float l = lambda;
+    new_index_of_refraction = std::sqrt(1   + b1 * pow(l,2)/ (pow(l,2) - c1) 
+                                            + b2 * pow(l,2)/ (pow(l,2) - c2) 
+                                            + b3 * pow(l,2)/ (pow(l,2) - c3));
+    // I should use Sellmeier equation to calculate index_of_refraction according to wavelength, 
+    // but just divide the wavelength lambda by 400nm to the index of refraction create better
+    // rainbow, so I keep this line.
+    new_index_of_refraction = lambda / 400.0;
+
     //Schlick's approximation
     float R0 = pow(((1.0f - new_index_of_refraction)/(1+ new_index_of_refraction)),2);
     Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
@@ -139,7 +141,7 @@ BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lamda) const {
     Vec3 refract_dir = refract(out_dir, new_index_of_refraction, was_internal);
 
     if (was_internal){
-        ret.attenuation = R_theta * Old2NewSpectrum(reflectance).sampleAtLambda(lamda)  / cos_theta;
+        ret.attenuation = R_theta * Old2NewSpectrum(reflectance).sampleAtLambda(lambda)  / cos_theta;
         ret.direction = reflect(out_dir);
         ret.pdf = R_theta;
         return ret;
@@ -149,12 +151,12 @@ BSDF_Sample BSDF_Glass::sample(Vec3 out_dir,float lamda) const {
         // (e.g., If the Fresnel reflectance is 0.9, then you should generate a reflection ray 90% of the time
         bool is_reflection = RNG::coin_flip(R_theta);
         if(is_reflection) {
-            ret.attenuation = R_theta * Old2NewSpectrum(reflectance).sampleAtLambda(lamda) / cos_theta;
+            ret.attenuation = R_theta * Old2NewSpectrum(reflectance).sampleAtLambda(lambda) / cos_theta;
             ret.direction = reflect(out_dir);
             ret.pdf = R_theta;
             return ret;
         }
-        ret.attenuation = (1.0f - R_theta) * Old2NewSpectrum(transmittance).sampleAtLambda(lamda) / cos_theta;
+        ret.attenuation = (1.0f - R_theta) * Old2NewSpectrum(transmittance).sampleAtLambda(lambda) / cos_theta;
         ret.direction = refract_dir;
         ret.pdf = 1.0f - R_theta;
         return ret;
@@ -169,7 +171,7 @@ Spectrum BSDF_Glass::evaluate(Vec3 out_dir, Vec3 in_dir) const {
     return {};
 }
 
-BSDF_Sample BSDF_Diffuse::sample(Vec3 out_dir,float lamda) const {
+BSDF_Sample BSDF_Diffuse::sample(Vec3 out_dir,float lambda) const {
     BSDF_Sample ret;
     ret.direction = sampler.sample(ret.pdf);
     ret.emissive = radiance;
@@ -182,7 +184,7 @@ Spectrum BSDF_Diffuse::evaluate(Vec3 out_dir, Vec3 in_dir) const {
     return {};
 }
 
-BSDF_Sample BSDF_Refract::sample(Vec3 out_dir,float lamda) const {
+BSDF_Sample BSDF_Refract::sample(Vec3 out_dir,float lambda) const {
 
     // TODO (PathTracer): Task 6
     // Implement pure refraction BSDF.
@@ -193,7 +195,7 @@ BSDF_Sample BSDF_Refract::sample(Vec3 out_dir,float lamda) const {
 
     bool was_internal;
     Vec3 surface_normal = Vec3(0.0f, 1.0f, 0.0f);
-    ret.attenuation = Old2NewSpectrum(transmittance).sampleAtLambda(lamda) / abs(dot(out_dir, surface_normal)); // What is the ratio of reflected/incoming light?
+    ret.attenuation = Old2NewSpectrum(transmittance).sampleAtLambda(lambda) / abs(dot(out_dir, surface_normal)); // What is the ratio of reflected/incoming light?
     ret.direction = refract(out_dir, index_of_refraction, was_internal);       // What direction should we sample incoming light from?
     ret.pdf = 1.0f; // Was was the PDF of the sampled direction? (In this case, the PMF)
     return ret;

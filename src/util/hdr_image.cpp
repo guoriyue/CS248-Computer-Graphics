@@ -92,7 +92,7 @@ std::string HDR_Image::load_from(std::string file) {
                 for(size_t i = 0; i < w; i++) {
                     size_t didx = 4 * (j * w + i);
                     size_t pidx = (h - j - 1) * w + i;
-                    pixels[pidx] = NewSpectrum(data[didx], data[didx + 1], data[didx + 2]);
+                    pixels[pidx] = Convert2Spectrum(data[didx], data[didx + 1], data[didx + 2]);
                     if(!pixels[pidx].valid()) pixels[pidx] = {};
                 }
             }
@@ -116,7 +116,7 @@ std::string HDR_Image::load_from(std::string file) {
             float r = data[i] / 255.0f;
             float g = data[i + 1] / 255.0f;
             float b = data[i + 2] / 255.0f;
-            pixels[i / channels] = NewSpectrum(r, g, b);
+            pixels[i / channels] = Convert2Spectrum(r, g, b);
             if(!pixels[i / channels].valid()) pixels[i / channels] = {};
         }
 

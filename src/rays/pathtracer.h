@@ -23,7 +23,7 @@ namespace PT {
 
 struct RT_Result {
     float p;
-    float lamda;
+    float lambda;
 };
 
 
