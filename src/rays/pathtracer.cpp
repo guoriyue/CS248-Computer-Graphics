@@ -205,8 +205,8 @@ void Pathtracer::do_trace(size_t samples) {
 
                 RT_Result ret = trace_pixel(i, j);
                 if(!(std::isinf(ret.p)||std::isnan(ret.p))) {
-                    //instead of adding spectrum value, now we add the light
-                    // intensity to a particular wavelength between samples.
+                    //Instead of adding spectrum value, we now add the light intensity to a
+                    //particular wavelength between samples.
                     sample.at(i, j).addValueAtLambda(ret.lambda, ret.p);
                     sampled++;
                 }
