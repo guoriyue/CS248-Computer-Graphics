@@ -75,7 +75,7 @@ RT_Result Pathtracer::trace_pixel(size_t x, size_t y) {
     float p = trace_ray(out);
     RT_Result ret;
     ret.lamda = out.lamda;
-    ret.p = p*30;
+    ret.p = p*2.5;
     return ret;
 
 

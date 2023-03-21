@@ -5,8 +5,8 @@
       <author>Assimp</author>
       <authoring_tool>Assimp Exporter</authoring_tool>
     </contributor>
-    <created>2023-03-19T03:39:19</created>
-    <modified>2023-03-19T03:39:19</modified>
+    <created>2023-03-20T17:19:34</created>
+    <modified>2023-03-20T17:19:34</modified>
     <unit name="meter" meter="1" />
     <up_axis>Y_UP</up_axis>
   </asset>
@@ -378,7 +378,7 @@
         </instance_geometry>
       </node>
       <node id="Square-S3D-14" name="Square-S3D-14" type="NODE">
-        <matrix sid="matrix">-4.3711378e-08 -0.99999976 0 0.5 0.99999976 -4.3711378e-08 0 0.5 0 0 0.99999905 0 0 0 0 1</matrix>
+        <matrix sid="matrix">-4.3711378e-08 -0.99999976 0 0.5 0.99999976 -4.3711378e-08 0 0.5 0 0 0.99999887 0 0 0 0 1</matrix>
         <instance_geometry url="#Square-S3D-14_1">
           <bind_material>
             <technique_common>
@@ -441,7 +441,7 @@
         <instance_camera url="#S3D-ANIM_CAM_NODE-camera"/>
       </node>
       <node id="S3D-RENDER_CAM_NODE" name="S3D-RENDER_CAM_NODE" type="NODE">
-        <matrix sid="matrix">0.92453158 -0.23881614 0.2969988 0.29698145 1.4901159e-08 0.7793085 0.6266405 0.62660402 -0.38110551 -0.5793488 0.72049528 0.72053409 0 0 0 1</matrix>
+        <matrix sid="matrix">0.98480755 -0.081523858 0.15332401 0.11258838 -5.9604815e-08 0.88294613 0.46947694 0.40594208 -0.17365022 -0.46234453 0.86953211 0.62960994 0 0 0 1</matrix>
         <instance_camera url="#S3D-RENDER_CAM_NODE-camera"/>
       </node>
     </visual_scene>
